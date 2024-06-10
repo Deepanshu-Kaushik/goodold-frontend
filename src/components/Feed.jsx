@@ -37,7 +37,7 @@ export default function Feed({
         }
       );
       if (response.status === 403) return navigate("/login");
-      const updatedPost = response.json();
+      const updatedPost = await response.json();
       setFeed((feed) =>
         feed.map((post) => {
           if (post.postId === updatedPost.postId) return updatedPost;
