@@ -4,59 +4,76 @@ import CreatePost from "./CreatePost";
 import FriendList from "./FriendList";
 import Feed from "./Feed";
 import { useNavigate, useParams } from "react-router-dom";
+import checkToken from "../utils/checkToken";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState();
-  const [friendList, setFriendList] = useState();
-  const [feed, setFeed] = useState();
+  const [userData, setUserData] = useState(null);
+  const [friendList, setFriendList] = useState(null);
+  const [feed, setFeed] = useState(null);
   const token = localStorage.getItem("access_token");
-  
+
   const { userId } = useParams();
-  useEffect(() => {
-    if (!token) return navigate("/");
-    !(async function () {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.status === 200) setUserData(await response.json());
-        else if (response.status === 403) return navigate("/login");
-      } catch (error) {
-        setUserData({ error: error.message });
-      }
-    })();
-    !(async function () {
-      let response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/friends`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        const friendList = await response.json();
-        setFriendList(friendList);
-      } else if (response.status === 403) return navigate("/login");
-    })();
-    !(async function () {
-      let response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/posts`, {
+
+  const fetchData = async (url, setter) => {
+    try {
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 200) {
-        const feed = await response.json();
-        setFeed(feed);
-      } else if (response.status === 403) return navigate("/login");
-    })();
+        const data = await response.json();
+        setter(data);
+      } else if (response.status === 403) {
+        navigate("/login");
+      } else {
+        throw new Error("Something went wrong!");
+      }
+    } catch (error) {
+      handleTokenError();
+    }
+  };
+
+  const handleTokenError = async () => {
+    try {
+      const validateToken = await checkToken(token);
+      if (validateToken.hasOwnProperty("error")) {
+        localStorage.removeItem("access_token");
+        navigate("/login");
+      }
+    } catch (error) {
+      localStorage.removeItem("access_token");
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const getUserData = fetchData(
+      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}`,
+      setUserData
+    );
+    const getFriendList = fetchData(
+      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/friends`,
+      setFriendList
+    );
+    const getFeed = fetchData(
+      `${import.meta.env.VITE_BACKEND_URL}/posts`,
+      setFeed
+    );
+
+    Promise.all([getUserData, getFriendList, getFeed]);
   }, [userId]);
+
+  if (!userData || !friendList || !feed) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-[90%] m-auto flex lg:flex-row flex-col pt-6 gap-10">

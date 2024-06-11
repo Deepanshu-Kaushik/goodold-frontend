@@ -30,7 +30,7 @@ export default function Register() {
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();    
+    e.preventDefault();
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -56,7 +56,11 @@ export default function Register() {
     <div className="flex p-4 justify-center">
       <Card customWidth="w-[60%]">
         <h2>Welcome to Sociopedia, the Social Media for Sociopaths!</h2>
-        <form className="flex flex-col my-4 gap-2" onSubmit={handleSubmit} encType="multipart/form-data">
+        <form
+          className="flex flex-col my-4 gap-2"
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+        >
           <div className="space-x-2 w-full flex">
             <input
               type="text"

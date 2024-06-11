@@ -1,26 +1,37 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
+import checkToken from "../utils/checkToken";
+import apiRequest from "../utils/apiRequest";
 
 export default function Friend({ userId, friendList, setFriendList, data }) {
   const navigate = useNavigate();
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
+
   async function handleAddRemoveFriend(friendId) {
     if (userId === friendId) return;
     const token = localStorage.getItem("access_token");
     if (!token) return navigate("/login");
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/${friendId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const validateToken = await checkToken(token);
+      if (validateToken.hasOwnProperty("error")) {
+        localStorage.removeItem("access_token");
+        return navigate("/login");
       }
-    );
-    if (response.status === 403) return navigate("/login");
-    friendList = await response.json();
-    setFriendList(friendList);
+
+    try {
+      await apiRequest(
+        `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/${friendId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+        setFriendList
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   return (

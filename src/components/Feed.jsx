@@ -8,6 +8,8 @@ import {
 } from "@ant-design/icons";
 import Friend from "./Friend";
 import { useNavigate } from "react-router-dom";
+import checkToken from "../utils/checkToken";
+import apiRequest from "../utils/apiRequest";
 
 export default function Feed({
   userId,
@@ -23,7 +25,12 @@ export default function Feed({
     try {
       const token = localStorage.getItem("access_token");
       if (!token) return navigate("/login");
-      const response = await fetch(
+      const validateToken = await checkToken(token);
+      if (validateToken.hasOwnProperty("error")) {
+        localStorage.removeItem("access_token");
+        return navigate("/login");
+      }
+      await apiRequest(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/like`,
         {
           method: "PATCH",
@@ -34,15 +41,14 @@ export default function Feed({
           body: JSON.stringify({
             userId,
           }),
-        }
-      );
-      if (response.status === 403) return navigate("/login");
-      const updatedPost = await response.json();
-      setFeed((feed) =>
-        feed.map((post) => {
-          if (post.postId === updatedPost.postId) return updatedPost;
-          else return post;
-        })
+        },
+        (updatedPost) =>
+          setFeed((feed) =>
+            feed.map((post) => {
+              if (post.postId === updatedPost.postId) return updatedPost;
+              else return post;
+            })
+          )
       );
     } catch (error) {
       console.log(error.message);

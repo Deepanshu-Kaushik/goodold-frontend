@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
+import apiRequest from "../utils/apiRequest";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      let userData = await fetch(
+      await apiRequest(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
         {
           method: "POST",
@@ -24,13 +25,14 @@ export default function Login() {
           headers: {
             "Content-Type": "application/json",
           },
+        },
+        (userData) => {
+          localStorage.setItem("access_token", userData.token);
+          return navigate(`/${userData.user._id}`);
         }
       );
-      userData = await userData.json();
-      localStorage.setItem("access_token", userData.token);
-      return navigate(`/${userData.user._id}`);
     } catch (error) {
-      return;
+      console.log(error.message);
     }
   }
 

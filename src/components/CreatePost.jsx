@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Card from "./Card";
 import {
   AudioFilled,
@@ -7,8 +7,11 @@ import {
   PaperClipOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import checkToken from "../utils/checkToken";
+import apiRequest from "../utils/apiRequest";
 
 export default function CreatePost({ userData, setFeed }) {
+  const pictureRef = useRef();
   const navigate = useNavigate();
   const [showImageTab, setShowImageTab] = useState(false);
   const [newPost, setNewPost] = useState({
@@ -18,16 +21,28 @@ export default function CreatePost({ userData, setFeed }) {
 
   const handleNewPost = async (e) => {
     e.preventDefault();
-    const postDataToSend = new FormData();
-    newPost.userId = userData._id;
-    for (const key in newPost) {
-      postDataToSend.append(key, newPost[key]);
-    }
-
     try {
       const token = localStorage.getItem("access_token");
       if (!token) return navigate("/login");
-      const response = await fetch(
+      const validateToken = await checkToken(token);
+      if (validateToken.hasOwnProperty("error")) {
+        localStorage.removeItem("access_token");
+        return navigate("/login");
+      }
+
+      const postDataToSend = new FormData();
+      postDataToSend.append("userId", userData._id);
+      for (const key in newPost) {
+        postDataToSend.append(key, newPost[key]);
+      }
+
+      const useFeed = (newFeed) => {
+        setFeed(newFeed);
+        setNewPost({ description: "", picture: null });
+        pictureRef.current.value = "";
+      };
+
+      await apiRequest(
         `${import.meta.env.VITE_BACKEND_URL}/posts`,
         {
           method: "POST",
@@ -35,12 +50,9 @@ export default function CreatePost({ userData, setFeed }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
+        useFeed
       );
-      if (response.status === 200) {
-        const newFeed = await response.json();
-        setFeed(newFeed);
-      } else if (response.status === 403) return navigate("/login");
     } catch (error) {
       console.log(error.message);
     }
@@ -74,6 +86,7 @@ export default function CreatePost({ userData, setFeed }) {
         </div>
         {showImageTab && (
           <input
+            ref={pictureRef}
             type="file"
             name="picture"
             accept="image/jpeg, image/jpg, image/png"
