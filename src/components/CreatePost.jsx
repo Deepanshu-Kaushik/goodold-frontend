@@ -7,8 +7,6 @@ import {
   PaperClipOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import checkToken from "../utils/checkToken";
-import apiRequest from "../utils/apiRequest";
 
 export default function CreatePost({ userData, setFeed }) {
   const pictureRef = useRef();
@@ -23,12 +21,8 @@ export default function CreatePost({ userData, setFeed }) {
     e.preventDefault();
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) return navigate("/login");
-      const validateToken = await checkToken(token);
-      if (validateToken.hasOwnProperty("error")) {
-        localStorage.removeItem("access_token");
-        return navigate("/login");
-      }
+      const userId = localStorage.getItem("userId");
+      if (!token || !userId) return navigate("/login");
 
       const postDataToSend = new FormData();
       postDataToSend.append("userId", userData._id);
@@ -36,13 +30,7 @@ export default function CreatePost({ userData, setFeed }) {
         postDataToSend.append(key, newPost[key]);
       }
 
-      const useFeed = (newFeed) => {
-        setFeed(newFeed);
-        setNewPost({ description: "", picture: null });
-        pictureRef.current.value = "";
-      };
-
-      await apiRequest(
+      const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts`,
         {
           method: "POST",
@@ -50,9 +38,29 @@ export default function CreatePost({ userData, setFeed }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
-        useFeed
+        }
       );
+
+      if (response.status >= 200 && response.status <= 210) {
+        const data = await response.json();
+        setFeed((posts) => {
+          const postsArray = Object.values(posts);
+          postsArray.unshift(data);
+          const updatedPosts = {};
+          postsArray.forEach((post) => {
+            updatedPosts[post.postId] = post;
+          });
+          return postsArray;
+        });
+
+        setNewPost({ description: "", picture: null });
+        pictureRef.current.value = "";
+        setShowImageTab(false);
+      } else if (response.status === 403) {
+        return navigate("/login");
+      } else {
+        throw new Error("Something went wrong!");
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -65,13 +73,13 @@ export default function CreatePost({ userData, setFeed }) {
         encType="multipart/form-data"
         onSubmit={handleNewPost}
       >
-        <div className="flex gap-4 items-center">
+        <div className="flex md:flex-row flex-col gap-4 items-center justify-center">
           <img
             src={userData?.userPicturePath}
             className="size-14 rounded-full object-cover"
           />
           <input
-            className="application-grey outline-none ml-2 placeholder:text-sm py-4 px-6 rounded-full flex-1"
+            className="application-grey outline-none placeholder:text-sm py-4 px-6 rounded-full flex-1 w-full"
             type="text"
             name="description"
             placeholder="What's on your mind..."
@@ -99,7 +107,7 @@ export default function CreatePost({ userData, setFeed }) {
           />
         )}
         <hr className="mb-2" />
-        <div className="flex gap-2 justify-between mx-2">
+        <div className="grid grid-cols-2 md:flex gap-2 justify-items-center md:justify-between w-full mx-2">
           <button
             type="button"
             className="flex gap-x-1 text-gray-500 text-sm "
@@ -120,13 +128,13 @@ export default function CreatePost({ userData, setFeed }) {
             <AudioFilled style={{ fontSize: "20px" }} />
             <span>Audio</span>
           </button>
-          <button
-            type="submit"
-            className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-full"
-          >
-            POST
-          </button>
         </div>
+        <button
+          type="submit"
+          className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-full"
+        >
+          POST
+        </button>
       </form>
     </Card>
   );

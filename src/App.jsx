@@ -11,9 +11,9 @@ const routes = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <RedirectPage /> },
-      { path: "login", element: <Login /> },
-      { path: "register", element: <Register /> },
-      { path: ":userId", element: <HomePage /> },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      // { path: "/:userId", element: <UserPage /> },
     ],
   },
 ]);

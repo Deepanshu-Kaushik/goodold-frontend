@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
-import apiRequest from "../utils/apiRequest";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await apiRequest(
+      const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
         {
           method: "POST",
@@ -25,12 +24,19 @@ export default function Login() {
           headers: {
             "Content-Type": "application/json",
           },
-        },
-        (userData) => {
-          localStorage.setItem("access_token", userData.token);
-          return navigate(`/${userData.user._id}`);
         }
       );
+
+      if (response.status >= 200 && response.status <= 210) {
+        const userData = await response.json();
+        localStorage.setItem("access_token", userData.token);
+        localStorage.setItem("userId", userData.user._id);
+        return navigate(`/`);
+      } else if (response.status === 403) {
+        return navigate("/login");
+      } else {
+        throw new Error("Something went wrong!");
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -65,7 +71,7 @@ export default function Login() {
           </button>
         </form>
         <Link to="/register" className="text-sm text-sky-400 underline">
-          Don't have an account? Sign Up here.
+          Don't have an account? Sign in here.
         </Link>
       </Card>
     </div>

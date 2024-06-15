@@ -5,13 +5,13 @@ import {
   SearchOutlined,
   SunFilled,
 } from "@ant-design/icons";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const { userId } = useParams();
+  const userId = localStorage.getItem("userId");
 
   return (
-    <div className="flex gap-8 justify-around items-center p-5 bg-white select-none w-full">
+    <div className="hidden md:flex gap-8 justify-around items-center p-5 bg-white select-none w-full">
       <div
         className={`flex gap-8 w-[50%] items-center ${
           userId ? "justify-start" : "justify-center"
@@ -47,7 +47,7 @@ export default function Navbar() {
           <Link
             to="/login"
             onClick={() => {
-              localStorage.removeItem("access_token");
+              localStorage.clear();
             }}
           >
             Logout

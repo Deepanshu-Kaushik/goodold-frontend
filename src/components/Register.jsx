@@ -61,7 +61,7 @@ export default function Register() {
           onSubmit={handleSubmit}
           encType="multipart/form-data"
         >
-          <div className="space-x-2 w-full flex">
+          <div className="gap-2 w-full flex flex-col md:flex-row">
             <input
               type="text"
               className="outline-sky-400 p-2 flex-1 border-2"
