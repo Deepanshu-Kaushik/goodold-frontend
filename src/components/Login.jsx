@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const { access_token: token, userId } = localStorage;
+    if (token && userId) return navigate("/");
+  }, []);
+
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   function handleOnChange(e) {
@@ -71,7 +77,7 @@ export default function Login() {
           </button>
         </form>
         <Link to="/register" className="text-sm text-sky-400 underline">
-          Don't have an account? Sign in here.
+          Don't have an account? Sign Up here.
         </Link>
       </Card>
     </div>

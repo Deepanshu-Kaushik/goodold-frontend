@@ -11,22 +11,16 @@ import {
 import Friend from "./Friend";
 import { useNavigate } from "react-router-dom";
 
-export default function Feed({
-  userId,
-  friendList,
-  setFriendList,
-  feed,
-  setFeed,
-}) {
+export default function Feed({ friendList, setFriendList, feed, setFeed }) {
   const [commentsShown, setCommentsShown] = useState([]);
   const [isEditing, setIsEditing] = useState();
   const [description, setDescription] = useState("");
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
+  const { access_token: token, userId } = localStorage;
 
   async function handleLikeDislike(postId) {
     try {
-      const token = localStorage.getItem("access_token");
       if (!token || !userId) return navigate("/login");
 
       const response = await fetch(
@@ -65,7 +59,6 @@ export default function Feed({
     if (!description) return;
 
     try {
-      const token = localStorage.getItem("access_token");
       if (!token || !userId) return navigate("/login");
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/edit`,
@@ -104,7 +97,6 @@ export default function Feed({
 
   async function handlePostDelete(postId) {
     try {
-      const token = localStorage.getItem("access_token");
       if (!token || !userId) return navigate("/login");
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/delete`,
@@ -137,7 +129,6 @@ export default function Feed({
     if (!comment) return;
 
     try {
-      const token = localStorage.getItem("access_token");
       if (!token || !userId) return navigate("/login");
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/comment`,

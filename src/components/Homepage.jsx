@@ -3,7 +3,7 @@ import UserInfo from "./UserInfo";
 import CreatePost from "./CreatePost";
 import FriendList from "./FriendList";
 import Feed from "./Feed";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 
 export default function HomePage() {
@@ -11,8 +11,7 @@ export default function HomePage() {
   const [userData, setUserData] = useState(null);
   const [friendList, setFriendList] = useState(null);
   const [feed, setFeed] = useState(null);
-  const token = localStorage.getItem("access_token");
-  const userId = localStorage.getItem("userId");
+  const { access_token: token, userId } = localStorage;
 
   const fetchData = async (url, setter) => {
     try {
@@ -68,17 +67,16 @@ export default function HomePage() {
   return (
     <div className="w-[90%] m-auto flex lg:flex-row flex-col py-6 gap-10">
       <div className="flex flex-col gap-4 lg:w-[30%]">
-          <UserInfo userData={userData} friends={friendList?.length} />
-          <FriendList
-            userId={userId}
-            friendList={friendList}
-            setFriendList={setFriendList}
-          />
+        <UserInfo userData={userData} friends={friendList?.length} />
+        <FriendList
+          userId={userId}
+          friendList={friendList}
+          setFriendList={setFriendList}
+        />
       </div>
       <div className="flex flex-col flex-1 gap-4">
         <CreatePost userData={userData} setFeed={setFeed} />
         <Feed
-          userId={userId}
           friendList={friendList}
           setFriendList={setFriendList}
           feed={feed}

@@ -20,8 +20,7 @@ export default function CreatePost({ userData, setFeed }) {
   const handleNewPost = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("access_token");
-      const userId = localStorage.getItem("userId");
+      const { access_token: token, userId } = localStorage;
       if (!token || !userId) return navigate("/login");
 
       const postDataToSend = new FormData();

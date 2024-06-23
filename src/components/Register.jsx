@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const { access_token: token, userId } = localStorage;
+    if (token && userId) return navigate("/");
+  }, []);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -46,7 +52,9 @@ export default function Register() {
         }
       );
       userData = await userData.json();
-      return navigate("/login");
+      localStorage.setItem("access_token", userData.token);
+      localStorage.setItem("userId", userData.user._id);
+      return navigate(`/`);
     } catch (error) {
       console.error("Error during registration:", error);
     }
@@ -125,7 +133,7 @@ export default function Register() {
           </button>
         </form>
         <Link to="/login" className="text-sm text-sky-400 underline">
-          Already have an account? Sign Up here.
+          Already have an account? Sign In here.
         </Link>
       </Card>
     </div>

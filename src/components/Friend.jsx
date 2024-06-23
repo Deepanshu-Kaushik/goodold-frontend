@@ -1,23 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  UserAddOutlined,
-  UserDeleteOutlined,
-} from "@ant-design/icons";
+import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
 
-export default function Friend({
-  userId,
-  friendList,
-  setFriendList,
-  data,
-}) {
+export default function Friend({ friendList, userId, setFriendList, data, isHidden = false}) {
   const navigate = useNavigate();
+  const { access_token: token} = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
 
   async function handleAddRemoveFriend(friendId) {
     if (userId === friendId) return;
-
-    const token = localStorage.getItem("access_token");
     if (!token || !userId) return navigate("/login");
 
     try {
@@ -61,13 +52,13 @@ export default function Friend({
       {friendsIds.includes(data?.userId) ? (
         <UserDeleteOutlined
           className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
-          hidden={userId === data?.userId ? true : false}
+          hidden={userId === data?.userId || isHidden ? true : false}
           onClick={() => handleAddRemoveFriend(data?.userId)}
         />
       ) : (
         <UserAddOutlined
           className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
-          hidden={userId === data?.userId ? true : false}
+          hidden={userId === data?.userId || isHidden ? true : false}
           onClick={() => handleAddRemoveFriend(data?.userId)}
         />
       )}
