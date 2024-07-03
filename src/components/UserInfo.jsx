@@ -8,7 +8,7 @@ import {
 
 export default function UserInfo({ userData, friends }) {
   return (
-    <Card customWidth="w-full">
+    <Card customStyle="w-full">
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-4">

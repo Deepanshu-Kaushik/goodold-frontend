@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import UserInfo from "./UserInfo";
-import CreatePost from "./CreatePost";
 import FriendList from "./FriendList";
-import Feed from "./Feed";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
+import CreatePost from "./CreatePost";
+import Feed from "./Feed";
 
-export default function HomePage() {
+export default function ProfilePage() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [friendList, setFriendList] = useState(null);
   const [feed, setFeed] = useState(null);
+  const { profileId } = useParams();
   const { access_token: token, userId } = localStorage;
 
   const fetchData = async (url, setter) => {
@@ -41,20 +42,20 @@ export default function HomePage() {
     }
 
     const getUserData = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/user/${profileId}`,
       setUserData
     );
     const getFriendList = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/friends`,
+      `${import.meta.env.VITE_BACKEND_URL}/user/${profileId}/friends`,
       setFriendList
     );
     const getFeed = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/posts`,
+      `${import.meta.env.VITE_BACKEND_URL}/posts/${profileId}`,
       setFeed
     );
 
     Promise.all([getUserData, getFriendList, getFeed]);
-  }, [userId]);
+  }, [profileId]);
 
   if (!userData || !friendList || !feed) {
     return (
@@ -69,7 +70,7 @@ export default function HomePage() {
       <div className="flex flex-col gap-4 lg:w-[30%]">
         <UserInfo userData={userData} friends={friendList?.length} />
         <FriendList
-          userId={userId}
+          userId={profileId}
           friendList={friendList}
           setFriendList={setFriendList}
         />
@@ -81,7 +82,7 @@ export default function HomePage() {
           setFriendList={setFriendList}
           feed={feed}
           setFeed={setFeed}
-          userId={userId}
+          userId={profileId}
         />
       </div>
     </div>

@@ -20,7 +20,7 @@ export default function Navbar() {
         }`}
       >
         <Link to="/" className="text-cyan-400 text-3xl font-bold">
-          Sociopedia
+          Goodold
         </Link>
         {!isNotAuthenticated && (
           <div className="application-grey p-2 rounded-xl flex items-center">

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export default function Register() {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -54,16 +57,18 @@ export default function Register() {
       userData = await userData.json();
       localStorage.setItem("access_token", userData.token);
       localStorage.setItem("userId", userData.user._id);
+      localStorage.setItem("userPicturePath", userData.user.userPicturePath);
       return navigate(`/`);
     } catch (error) {
       console.error("Error during registration:", error);
     }
+    setLoading(false);
   }
 
   return (
     <div className="flex p-4 justify-center">
-      <Card customWidth="w-[60%]">
-        <h2>Welcome to Sociopedia, the Social Media for Sociopaths!</h2>
+      <Card customStyle="w-[60%]">
+        <h2>Welcome to Goodold!</h2>
         <form
           className="flex flex-col my-4 gap-2"
           onSubmit={handleSubmit}
@@ -125,12 +130,16 @@ export default function Register() {
             value={formData.password}
             onChange={handleOnChange}
           />
-          <button
-            type="submit"
-            className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
-          >
-            Register
-          </button>
+          {loading ? (
+            <LoadingOutlined className="text-5xl text-sky-600" />
+          ) : (
+            <button
+              type="submit"
+              className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
+            >
+              Register
+            </button>
+          )}
         </form>
         <Link to="/login" className="text-sm text-sky-400 underline">
           Already have an account? Sign In here.

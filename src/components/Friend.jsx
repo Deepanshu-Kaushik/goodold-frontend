@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
 
-export default function Friend({ friendList, userId, setFriendList, data, isHidden = false}) {
+export default function Friend({
+  friendList,
+  userId,
+  setFriendList,
+  data,
+  isHidden = false,
+}) {
   const navigate = useNavigate();
-  const { access_token: token} = localStorage;
+  const { access_token: token } = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
 
   async function handleAddRemoveFriend(friendId) {
@@ -36,7 +42,7 @@ export default function Friend({ friendList, userId, setFriendList, data, isHidd
   }
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between select-none">
       <div className="flex gap-4 items-center">
         <img
           src={data?.userPicturePath}
@@ -53,13 +59,19 @@ export default function Friend({ friendList, userId, setFriendList, data, isHidd
         <UserDeleteOutlined
           className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
           hidden={userId === data?.userId || isHidden ? true : false}
-          onClick={() => handleAddRemoveFriend(data?.userId)}
+          onClick={(e) => {
+            e.preventDefault();
+            handleAddRemoveFriend(data?.userId);
+          }}
         />
       ) : (
         <UserAddOutlined
           className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
           hidden={userId === data?.userId || isHidden ? true : false}
-          onClick={() => handleAddRemoveFriend(data?.userId)}
+          onClick={(e) => {
+            e.preventDefault();
+            handleAddRemoveFriend(data?.userId);
+          }}
         />
       )}
     </div>

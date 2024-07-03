@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export default function Login() {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
@@ -37,6 +40,7 @@ export default function Login() {
         const userData = await response.json();
         localStorage.setItem("access_token", userData.token);
         localStorage.setItem("userId", userData.user._id);
+        localStorage.setItem("userPicturePath", userData.user.userPicturePath);
         return navigate(`/`);
       } else if (response.status === 403) {
         return navigate("/login");
@@ -46,12 +50,13 @@ export default function Login() {
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(false);
   }
 
   return (
     <div className="flex p-4 justify-center">
-      <Card customWidth="w-[60%]">
-        <h2>Welcome to Sociopedia, the Social Media for Sociopaths!</h2>
+      <Card customStyle="w-[60%]">
+        <h2>Welcome to Goodold!</h2>
         <form className="flex flex-col my-4 gap-2" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -69,15 +74,19 @@ export default function Login() {
             value={formData.password}
             onChange={handleOnChange}
           />
-          <button
-            type="submit"
-            className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
-          >
-            Login
-          </button>
+          {loading ? (
+            <LoadingOutlined className="text-5xl text-sky-600" />
+          ) : (
+            <button
+              type="submit"
+              className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
+            >
+              Login
+            </button>
+          )}
         </form>
         <Link to="/register" className="text-sm text-sky-400 underline">
-          Don't have an account? Sign Up here.
+          {"Don't"} have an account? Sign Up here.
         </Link>
       </Card>
     </div>

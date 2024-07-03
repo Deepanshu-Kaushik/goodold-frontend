@@ -1,14 +1,16 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Card from "./Card";
 import {
   AudioFilled,
   FileGifOutlined,
   FileImageOutlined,
+  LoadingOutlined,
   PaperClipOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 export default function CreatePost({ userData, setFeed }) {
+  const [loading, setLoading] = useState(false);
   const pictureRef = useRef();
   const navigate = useNavigate();
   const [showImageTab, setShowImageTab] = useState(false);
@@ -19,6 +21,7 @@ export default function CreatePost({ userData, setFeed }) {
 
   const handleNewPost = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { access_token: token, userId } = localStorage;
       if (!token || !userId) return navigate("/login");
@@ -45,10 +48,6 @@ export default function CreatePost({ userData, setFeed }) {
         setFeed((posts) => {
           const postsArray = Object.values(posts);
           postsArray.unshift(data);
-          const updatedPosts = {};
-          postsArray.forEach((post) => {
-            updatedPosts[post.postId] = post;
-          });
           return postsArray;
         });
 
@@ -63,10 +62,11 @@ export default function CreatePost({ userData, setFeed }) {
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(false);
   };
 
   return (
-    <Card customWidth="w-full">
+    <Card customStyle="w-full">
       <form
         className="flex flex-col gap-4"
         encType="multipart/form-data"
@@ -128,12 +128,16 @@ export default function CreatePost({ userData, setFeed }) {
             <span>Audio</span>
           </button>
         </div>
-        <button
-          type="submit"
-          className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-full"
-        >
-          POST
-        </button>
+        {loading ? (
+          <LoadingOutlined className="text-5xl text-sky-600" />
+        ) : (
+          <button
+            type="submit"
+            className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-full"
+          >
+            POST
+          </button>
+        )}
       </form>
     </Card>
   );

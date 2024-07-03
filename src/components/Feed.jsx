@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import Card from "./Card";
 import {
   CheckCircleFilled,
@@ -11,13 +11,13 @@ import {
 import Friend from "./Friend";
 import { useNavigate } from "react-router-dom";
 
-export default function Feed({ friendList, setFriendList, feed, setFeed }) {
+export default function Feed({ friendList, setFriendList, feed, setFeed, userId }) {
   const [commentsShown, setCommentsShown] = useState([]);
   const [isEditing, setIsEditing] = useState();
   const [description, setDescription] = useState("");
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
-  const { access_token: token, userId } = localStorage;
+  const { access_token: token } = localStorage;
 
   async function handleLikeDislike(postId) {
     try {
@@ -166,7 +166,7 @@ export default function Feed({ friendList, setFriendList, feed, setFeed }) {
   return (
     <div className="space-y-4 my-2 w-full" key={feed?.length}>
       {feed?.map((post) => (
-        <Card key={post.postId} customWidth="w-full ">
+        <Card key={post.postId} customStyle="w-full ">
           <div className="flex flex-col gap-4">
             <Friend
               userId={userId}
