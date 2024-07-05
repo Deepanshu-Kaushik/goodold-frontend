@@ -67,7 +67,11 @@ export default function HomePage() {
   return (
     <div className="w-[90%] m-auto flex lg:flex-row flex-col py-6 gap-10 h-full">
       <div className="flex flex-col gap-4 lg:w-[30%]">
-        <UserInfo userData={userData} friends={friendList?.length} />
+        <UserInfo
+          userData={userData}
+          friendList={friendList}
+          setFriendList={setFriendList}
+        />
         <FriendList
           userId={userId}
           friendList={friendList}

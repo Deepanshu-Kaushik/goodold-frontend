@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 
 const Layout = () => {
   return (
-    <div className="h-screen flex flex-col">
+  <div className="h-dvh flex flex-col overflow-y-auto">
       <Navbar />
       <Outlet />
     </div>

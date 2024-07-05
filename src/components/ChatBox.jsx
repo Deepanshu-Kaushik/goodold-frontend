@@ -112,7 +112,7 @@ export default function ChatBox({ friend, setIsChatOpen }) {
     <div className="flex-1 lg:max-w-[80%] flex flex-col justify-center">
       <div className="flex items-center gap-4">
         <button
-          className="md:hidden"
+          className="md:hidden p-1 rounded-full hover:bg-slate-200"
           onClick={() =>
             setIsChatOpen((prev) => (prev?.userId === friendId ? null : friend))
           }

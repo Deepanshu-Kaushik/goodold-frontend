@@ -89,6 +89,7 @@ export default function CreatePost({ userData, setFeed }) {
                 [e.target.name]: e.target.value,
               }))
             }
+            autoComplete="off"
           />
         </div>
         {showImageTab && (
@@ -115,15 +116,30 @@ export default function CreatePost({ userData, setFeed }) {
             <FileImageOutlined style={{ fontSize: "20px" }} />
             <span>Image</span>
           </button>
-          <button type="button" className="flex gap-x-1 text-gray-500 text-sm ">
+          <button
+            type="button"
+            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
+            disabled
+            title="Thamm ja bete"
+          >
             <FileGifOutlined style={{ fontSize: "20px" }} />
             <span>Clip</span>
           </button>
-          <button type="button" className="flex gap-x-1 text-gray-500 text-sm ">
+          <button
+            type="button"
+            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
+            disabled
+            title="Thamm ja bete"
+          >
             <PaperClipOutlined style={{ fontSize: "20px" }} />
             <span>Attachment</span>
           </button>
-          <button type="button" className="flex gap-x-1 text-gray-500 text-sm ">
+          <button
+            type="button"
+            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
+            disabled
+            title="Thamm ja bete"
+          >
             <AudioFilled style={{ fontSize: "20px" }} />
             <span>Audio</span>
           </button>

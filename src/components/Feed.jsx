@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import Card from "./Card";
 import {
   CheckCircleFilled,
@@ -9,15 +9,21 @@ import {
   HeartOutlined,
 } from "@ant-design/icons";
 import Friend from "./Friend";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function Feed({ friendList, setFriendList, feed, setFeed, userId }) {
+export default function Feed({
+  friendList,
+  setFriendList,
+  feed,
+  setFeed,
+  userId: profileId,
+}) {
   const [commentsShown, setCommentsShown] = useState([]);
   const [isEditing, setIsEditing] = useState();
   const [description, setDescription] = useState("");
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
-  const { access_token: token } = localStorage;
+  const { access_token: token, userId } = localStorage;
 
   async function handleLikeDislike(postId) {
     try {
@@ -107,7 +113,7 @@ export default function Feed({ friendList, setFriendList, feed, setFeed, userId 
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId,
+            profileId,
           }),
         }
       );
@@ -164,16 +170,21 @@ export default function Feed({ friendList, setFriendList, feed, setFeed, userId 
   }
 
   return (
-    <div className="space-y-4 my-2 w-full" key={feed?.length}>
+    <div className="space-y-4 my-2 w-full pb-6" key={feed?.length}>
       {feed?.map((post) => (
         <Card key={post.postId} customStyle="w-full ">
           <div className="flex flex-col gap-4">
-            <Friend
-              userId={userId}
-              friendList={friendList}
-              setFriendList={setFriendList}
-              data={post}
-            />
+            <Link
+              to={"/profile/" + post?.userId}
+              className="hover:bg-slate-200 p-2 w-full rounded-lg"
+            >
+              <Friend
+                userId={profileId}
+                friendList={friendList}
+                setFriendList={setFriendList}
+                data={post}
+              />
+            </Link>
             {!(isEditing === post?.postId) ? (
               <h3 className="text-sm text-slate-600">{post?.description}</h3>
             ) : (
@@ -184,6 +195,7 @@ export default function Feed({ friendList, setFriendList, feed, setFeed, userId 
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={post?.description}
                 className="outline-sky-400 p-2 border-2"
+                autoComplete="off"
               />
             )}
             <img
@@ -261,6 +273,7 @@ export default function Feed({ friendList, setFriendList, feed, setFeed, userId 
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Add a comment..."
+                    autoComplete="off"
                     className="outline-sky-400 p-2 w-full flex-1 border-2"
                   />
                   <button className="text-sky-50 text-sm bg-sky-400 hover:bg-sky-300 p-2 rounded-full">

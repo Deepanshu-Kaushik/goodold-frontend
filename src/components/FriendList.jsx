@@ -9,9 +9,13 @@ export default function FriendList({ userId, friendList, setFriendList }) {
       <Card customStyle="w-full">
         <h1 className="mb-4">Friend List</h1>
         {!friendList?.hasOwnProperty("error") && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
             {friendList?.map((friend) => (
-              <Link to={'/profile/'+friend?.userId} key={friend?.userId}>
+              <Link
+                to={"/profile/" + friend?.userId}
+                key={friend?.userId}
+                className='hover:bg-slate-200 p-2 w-full rounded-lg'
+              >
                 <Friend
                   userId={userId}
                   friendList={friendList}
