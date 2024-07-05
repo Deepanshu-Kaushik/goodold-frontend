@@ -4,6 +4,7 @@ import Friend from "./Friend";
 import ChatBox from "./ChatBox";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import ErrorComponent from "./ErrorComponent";
 
 export default function ChatRoom() {
   const [isChatOpen, setIsChatOpen] = useState(null);
@@ -55,7 +56,7 @@ export default function ChatRoom() {
             isChatOpen ? "hidden" : "w-full"
           } `}
         >
-          {!friendList?.hasOwnProperty("error") &&
+          {friendList?.length && !friendList?.hasOwnProperty("error") ? (
             friendList?.map((friend) => (
               <div
                 className={`cursor-pointer w-full p-2 rounded-lg hover:bg-slate-200 ${
@@ -76,7 +77,12 @@ export default function ChatRoom() {
                   isHidden
                 />
               </div>
-            ))}
+            ))
+          ) : (
+            <ErrorComponent className="text-3xl">
+              Please add someone as a friend to chat with them.
+            </ErrorComponent>
+          )}
         </div>
         {isChatOpen && (
           <ChatBox friend={isChatOpen} setIsChatOpen={setIsChatOpen} />
