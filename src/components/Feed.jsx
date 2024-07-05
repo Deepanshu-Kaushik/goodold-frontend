@@ -113,7 +113,7 @@ export default function Feed({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            profileId,
+            userId,
           }),
         }
       );
