@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import Card from "./Card";
 import { Link, useNavigate } from "react-router-dom";
-import { LoadingOutlined } from "@ant-design/icons";
+import {
+  EyeInvisibleTwoTone,
+  EyeTwoTone,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import { z } from "zod";
 import ErrorComponent from "./ErrorComponent";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(false);
   const navigate = useNavigate();
   const focusRef = useRef();
   const schema = z.object({
@@ -54,6 +60,7 @@ export default function Register() {
         ...formData,
         [name]: files[0],
       }));
+      if (files[0]) setImage(URL.createObjectURL(files[0]));
     } else {
       setFormData((formData) => ({
         ...formData,
@@ -116,7 +123,7 @@ export default function Register() {
   }
 
   return (
-    <div className="flex p-4 justify-center">
+    <div className="flex p-4 justify-center select-none">
       <Card customStyle="w-[80%] md:w-[60%]">
         <h2>Welcome to Goodold!</h2>
         <form
@@ -178,9 +185,39 @@ export default function Register() {
           <input
             type="file"
             name="picture"
+            id="picture"
             accept="image/jpeg, image/png, image/jpg"
             onChange={handleOnChange}
+            hidden
           />
+          <div className="flex justify-start items-center gap-1 relative">
+            <label
+              htmlFor="picture"
+              className="bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2"
+            >
+              Upload profile picture
+            </label>
+            {image &&
+              (!previewImage ? (
+                <EyeTwoTone
+                  className="text-xl p-2 rounded-full hover:bg-slate-200"
+                  twoToneColor="#0284c7"
+                  onClick={() => setPreviewImage(true)}
+                />
+              ) : (
+                <EyeInvisibleTwoTone
+                  className="text-xl p-2 rounded-full hover:bg-slate-200"
+                  twoToneColor="#0284c7"
+                  onClick={() => setPreviewImage(false)}
+                />
+              ))}
+          </div>
+          {previewImage && (
+            <img
+              className="h-80 object-cover border-2 p-0.5 border-sky-600"
+              src={image}
+            />
+          )}
           <input
             type="text"
             placeholder="Email"
@@ -210,13 +247,16 @@ export default function Register() {
           ) : (
             <button
               type="submit"
-              className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
+              className="text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center"
             >
               Register
             </button>
           )}
         </form>
-        <Link to="/login" className="text-sm text-sky-400 underline">
+        <Link
+          to="/login"
+          className="font-bold text-sky-800 hover:text-sky-600 underline"
+        >
           Already have an account? Sign In here.
         </Link>
       </Card>

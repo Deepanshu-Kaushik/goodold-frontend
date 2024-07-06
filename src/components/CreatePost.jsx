@@ -3,7 +3,6 @@ import Card from "./Card";
 import {
   AudioFilled,
   FileGifOutlined,
-  FileImageOutlined,
   LoadingOutlined,
   PaperClipOutlined,
 } from "@ant-design/icons";
@@ -13,7 +12,7 @@ export default function CreatePost({ userData, setFeed }) {
   const [loading, setLoading] = useState(false);
   const pictureRef = useRef();
   const navigate = useNavigate();
-  const [showImageTab, setShowImageTab] = useState(false);
+  const [image, setImage] = useState(false);
   const [newPost, setNewPost] = useState({
     description: "",
     picture: null,
@@ -53,7 +52,7 @@ export default function CreatePost({ userData, setFeed }) {
 
         setNewPost({ description: "", picture: null });
         pictureRef.current.value = "";
-        setShowImageTab(false);
+        setImage(false);
       } else if (response.status === 403) {
         return navigate("/login");
       } else {
@@ -92,68 +91,58 @@ export default function CreatePost({ userData, setFeed }) {
             autoComplete="off"
           />
         </div>
-        {showImageTab && (
-          <input
-            ref={pictureRef}
-            type="file"
-            name="picture"
-            accept="image/jpeg, image/jpg, image/png"
-            onChange={(e) =>
-              setNewPost((post) => ({
-                ...post,
-                [e.target.name]: e.target.files[0],
-              }))
-            }
+        <input
+          ref={pictureRef}
+          type="file"
+          id="picture"
+          name="picture"
+          accept="image/jpeg, image/jpg, image/png"
+          hidden
+          onChange={(e) => {
+            setNewPost((post) => ({
+              ...post,
+              [e.target.name]: e.target.files[0],
+            }));
+            setImage(URL.createObjectURL(e.target.files[0]));
+          }}
+        />
+        {image && (
+          <img
+            className="max-h-[800px] p-0.5 object-contain border-2 border-sky-600"
+            src={image}
           />
         )}
         <hr className="mb-2" />
-        <div className="grid grid-cols-2 md:flex gap-2 justify-items-center md:justify-between w-full mx-2">
-          <button
-            type="button"
-            className="flex gap-x-1 text-gray-500 text-sm "
-            onClick={() => setShowImageTab((prev) => !prev)}
-          >
-            <FileImageOutlined style={{ fontSize: "20px" }} />
-            <span>Image</span>
-          </button>
-          <button
-            type="button"
-            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
-            disabled
-            title="Thamm ja bete"
-          >
-            <FileGifOutlined style={{ fontSize: "20px" }} />
-            <span>Clip</span>
-          </button>
-          <button
-            type="button"
-            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
-            disabled
-            title="Thamm ja bete"
-          >
-            <PaperClipOutlined style={{ fontSize: "20px" }} />
-            <span>Attachment</span>
-          </button>
-          <button
-            type="button"
-            className="flex gap-x-1 text-gray-500 text-sm cursor-not-allowed"
-            disabled
-            title="Thamm ja bete"
-          >
-            <AudioFilled style={{ fontSize: "20px" }} />
-            <span>Audio</span>
-          </button>
+        <div className="flex flex-col md:flex-row gap-4 justify-evenly items-center">
+          <div className="flex-grow flex items-center gap-2 md:gap-4">
+            <button type="button">
+              <label
+                htmlFor="picture"
+                className="bg-blue-800 hover:bg-blue-600 text-white rounded-sm cursor-pointer text-center p-2 py-1 md:p-4 md:py-2"
+              >
+                Upload Image
+              </label>
+            </button>
+            <button type="button">
+              <label
+                htmlFor=""
+                className="bg-blue-800 hover:bg-blue-600 text-white rounded-sm cursor-pointer text-center p-2 py-1 md:p-4 md:py-2"
+              >
+                Upload Clip
+              </label>
+            </button>
+          </div>
+          {loading ? (
+            <LoadingOutlined className="text-5xl text-sky-600" />
+          ) : (
+            <button
+              type="submit"
+              className="bg-sky-800 hover:bg-sky-600 text-white p-4 py-2 rounded-sm"
+            >
+              POST
+            </button>
+          )}
         </div>
-        {loading ? (
-          <LoadingOutlined className="text-5xl text-sky-600" />
-        ) : (
-          <button
-            type="submit"
-            className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-full"
-          >
-            POST
-          </button>
-        )}
       </form>
     </Card>
   );

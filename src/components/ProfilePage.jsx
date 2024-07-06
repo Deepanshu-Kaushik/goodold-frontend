@@ -80,7 +80,9 @@ export default function ProfilePage() {
         />
       </div>
       <div className="flex flex-col flex-1 gap-4">
-        <CreatePost userData={userData} setFeed={setFeed} />
+        {userId === profileId && (
+          <CreatePost userData={userData} setFeed={setFeed} />
+        )}
         <Feed
           friendList={friendList}
           setFriendList={setFriendList}

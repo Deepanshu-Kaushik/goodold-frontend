@@ -1,12 +1,6 @@
-import {
-  BellFilled,
-  MessageFilled,
-  QuestionCircleFilled,
-  SunFilled,
-} from "@ant-design/icons";
+import { BellTwoTone, MessageTwoTone, SunFilled } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { useEffect } from "react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -20,7 +14,10 @@ export default function Navbar() {
           !isNotAuthenticated ? "justify-start" : "justify-center"
         }`}
       >
-        <Link to="/" className="text-cyan-400 text-2xl md:text-3xl font-bold">
+        <Link
+          to="/"
+          className="text-sky-800 hover:text-sky-500 text-2xl md:text-3xl font-bold"
+        >
           Goodold
         </Link>
         {!isNotAuthenticated && <SearchBar />}
@@ -30,30 +27,28 @@ export default function Navbar() {
           <div className="actions flex justify-around gap-8 items-center">
             <SunFilled
               style={{ cursor: "not-allowed" }}
-              className="text-lg md:text-xl"
+              className="text-lg md:text-2xl"
               disabled
               title="Thamm ja bete"
             />
-            <Link to="/chat" className="flex items-center">
-              <MessageFilled
+            <Link
+              to="/chat"
+              className="flex items-center justify-center rounded-full"
+            >
+              <MessageTwoTone
                 style={{ cursor: "pointer" }}
-                className="text-lg md:text-xl"
+                className="text-lg md:text-2xl"
               />
             </Link>
-            <BellFilled
-              className="text-lg md:text-xl"
-              style={{ cursor: "not-allowed" }}
-              title="Thamm ja bete"
-            />
-            <QuestionCircleFilled
-              className="text-lg md:text-xl"
+            <BellTwoTone
+              className="text-lg md:text-2xl"
               style={{ cursor: "not-allowed" }}
               title="Thamm ja bete"
             />
           </div>
           <Link
             to="/login"
-            className="bg-red-500 text-white rounded-md p-1 py-0.5 md:p-3 md:py-1 shadow-xl"
+            className="bg-[#e34432] text-white rounded-md p-1 py-0.5 md:p-3 md:py-1 border border-black hover:shadow-lg hover:shadow-red-900"
             onClick={() => {
               localStorage.clear();
             }}

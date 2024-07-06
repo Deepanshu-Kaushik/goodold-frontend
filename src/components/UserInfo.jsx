@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "./Card";
 import {
+  LoadingOutlined,
   PushpinOutlined,
   UserAddOutlined,
   UserDeleteOutlined,
@@ -12,10 +13,12 @@ export default function UserInfo({ userData, friendList, setFriendList }) {
   const { profileId } = useParams();
   const { access_token: token, userId } = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
+  const [loading, setLoading] = useState(false);
 
   async function handleAddRemoveFriend(friendId) {
     if (userId === friendId) return;
     if (!token || !userId) return navigate("/login");
+    setLoading(true);
 
     let url;
     if (userId === profileId)
@@ -41,6 +44,7 @@ export default function UserInfo({ userData, friendList, setFriendList }) {
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(false);
   }
 
   return (
@@ -64,11 +68,12 @@ export default function UserInfo({ userData, friendList, setFriendList }) {
               </div>
             </div>
           </div>
-          {profileId &&
+          {!loading ? (
+            profileId &&
             userId !== profileId &&
             (!friendsIds?.includes(userId) ? (
               <UserAddOutlined
-                className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
+                className="cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full"
                 onClick={(e) => {
                   e.preventDefault();
                   handleAddRemoveFriend(profileId);
@@ -76,13 +81,16 @@ export default function UserInfo({ userData, friendList, setFriendList }) {
               />
             ) : (
               <UserDeleteOutlined
-                className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
+                className="cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full"
                 onClick={(e) => {
                   e.preventDefault();
                   handleAddRemoveFriend(profileId);
                 }}
               />
-            ))}
+            ))
+          ) : (
+            <LoadingOutlined className="text-3xl text-sky-600 mx-3" />
+          )}
         </div>
         <hr />
         <div className="flex flex-col gap-2">

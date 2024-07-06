@@ -52,7 +52,7 @@ export default function ChatRoom() {
     <div className="flex-grow p-3 overflow-hidden">
       <Card customStyle="h-full shadow-2xl shadow-blue-900 flex max-h-screen gap-4 justify-between">
         <div
-          className={`md:flex flex-col gap-1 lg:w-[20%] ${
+          className={`md:flex flex-col gap-1 lg:w-[20%] overflow-y-auto ${
             isChatOpen ? "hidden" : "w-full"
           } `}
         >

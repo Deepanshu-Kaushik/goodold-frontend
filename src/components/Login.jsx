@@ -118,13 +118,13 @@ export default function Login() {
           ) : (
             <button
               type="submit"
-              className="text-sky-50 font-bold text-sm bg-sky-400 hover:bg-sky-300 px-4 pt-2 pb-1.5 rounded-sm text-center"
+              className="text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center"
             >
               Login
             </button>
           )}
         </form>
-        <Link to="/register" className="text-sm text-sky-400 underline">
+        <Link to="/register" className="font-bold text-sky-800 hover:text-sky-600 underline">
           {"Don't"} have an account? Sign Up here.
         </Link>
       </Card>

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
+import {
+  LoadingOutlined,
+  UserAddOutlined,
+  UserDeleteOutlined,
+} from "@ant-design/icons";
 
 export default function Friend({
   friendList,
@@ -10,13 +14,14 @@ export default function Friend({
   isHidden = false,
 }) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { access_token: token, userId } = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
 
   async function handleAddRemoveFriend(friendId) {
     if (userId === friendId) return;
     if (!token || !userId) return navigate("/login");
-
+    setLoading(true);
     let url;
     if (userId === profileId)
       url = `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/${friendId}`;
@@ -41,6 +46,7 @@ export default function Friend({
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(false);
   }
 
   return (
@@ -57,24 +63,32 @@ export default function Friend({
           <div className="text-xs text-slate-600">{data.location}</div>
         </div>
       </div>
-      {friendsIds.includes(userId === profileId ? data?.userId : userId) ? (
-        <UserDeleteOutlined
-          className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
-          hidden={userId === data?.userId || isHidden ? true : false}
-          onClick={(e) => {
-            e.preventDefault();
-            handleAddRemoveFriend(data?.userId);
-          }}
-        />
+      {!loading ? (
+        <>
+          {friendsIds.includes(userId === profileId ? data?.userId : userId) ? (
+            <UserDeleteOutlined
+              className="cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full"
+              hidden={userId === data?.userId || isHidden ? true : false}
+              onClick={(e) => {
+                e.preventDefault();
+                handleAddRemoveFriend(data?.userId);
+              }}
+            />
+          ) : (
+            <UserAddOutlined
+              className="cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full"
+              hidden={userId === data?.userId || isHidden ? true : false}
+              onClick={(e) => {
+                e.preventDefault();
+                handleAddRemoveFriend(data?.userId);
+              }}
+            />
+          )}
+        </>
       ) : (
-        <UserAddOutlined
-          className="cursor-pointer mx-2 text-cyan-700 bg-sky-200 p-3 rounded-full"
-          hidden={userId === data?.userId || isHidden ? true : false}
-          onClick={(e) => {
-            e.preventDefault();
-            handleAddRemoveFriend(data?.userId);
-          }}
-        />
+        <>
+          <LoadingOutlined className="text-3xl text-sky-600 mx-3" />
+        </>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ import {
   EditFilled,
   HeartFilled,
   HeartOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import Friend from "./Friend";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,16 +20,23 @@ export default function Feed({
   userId: profileId,
 }) {
   const [commentsShown, setCommentsShown] = useState([]);
+  const [loading, setLoading] = useState(null);
   const [isEditing, setIsEditing] = useState();
   const [description, setDescription] = useState("");
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
   const { access_token: token, userId } = localStorage;
+  const loadingState = [
+    "like-button",
+    "delete-button",
+    "edit-button",
+    "comment-button",
+  ];
 
   async function handleLikeDislike(postId) {
     try {
       if (!token || !userId) return navigate("/login");
-
+      setLoading(loadingState[0]);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/like`,
         {
@@ -59,11 +67,43 @@ export default function Feed({
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(null);
+  }
+
+  async function handlePostDelete(postId) {
+    try {
+      if (!token || !userId) return navigate("/login");
+      setLoading(loadingState[1]);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/delete`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+          }),
+        }
+      );
+
+      if (response.status >= 200 && response.status <= 210) {
+        setFeed((feed) => feed.filter((post) => postId !== post.postId));
+      } else if (response.status === 403) {
+        return navigate("/login");
+      } else {
+        throw new Error("Something went wrong!");
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+    setLoading(null);
   }
 
   async function handlePostEdit(postId) {
     if (!description) return;
-
+    setLoading(loadingState[2]);
     try {
       if (!token || !userId) return navigate("/login");
       const response = await fetch(
@@ -99,41 +139,13 @@ export default function Feed({
     } catch (error) {
       console.log(error.message);
     }
-  }
-
-  async function handlePostDelete(postId) {
-    try {
-      if (!token || !userId) return navigate("/login");
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/delete`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId,
-          }),
-        }
-      );
-
-      if (response.status >= 200 && response.status <= 210) {
-        setFeed((feed) => feed.filter((post) => postId !== post.postId));
-      } else if (response.status === 403) {
-        return navigate("/login");
-      } else {
-        throw new Error("Something went wrong!");
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
+    setLoading(null);
   }
 
   async function handleNewComment(e, postId) {
     e.preventDefault();
     if (!comment) return;
-
+    setLoading(loadingState[3]);
     try {
       if (!token || !userId) return navigate("/login");
       const response = await fetch(
@@ -167,12 +179,13 @@ export default function Feed({
     } catch (error) {
       console.log(error.message);
     }
+    setLoading(false);
   }
 
   return (
     <div className="space-y-4 my-2 w-full pb-6" key={feed?.length}>
       {feed?.map((post) => (
-        <Card key={post.postId} customStyle="w-full ">
+        <Card key={post.postId} customStyle="w-full">
           <div className="flex flex-col gap-4">
             <Link
               to={"/profile/" + post?.userId}
@@ -204,19 +217,26 @@ export default function Feed({
             />
             <div className="mx-3 flex justify-between items-center text-gray-500">
               <div className="flex items-center space-x-6">
+                {!(loading === loadingState[0]) ? (
+                  <button
+                    className="flex items-center space-x-1 w-[50%]"
+                    onClick={() => handleLikeDislike(post.postId)}
+                  >
+                    {Object.keys(post?.likes).includes(userId) ? (
+                      <HeartFilled style={{ fontSize: "20px", color: "red" }} />
+                    ) : (
+                      <HeartOutlined style={{ fontSize: "20px" }} />
+                    )}
+                    <span>{Object.keys(post?.likes).length}</span>
+                  </button>
+                ) : (
+                  <LoadingOutlined
+                    style={{ fontSize: "24px" }}
+                    className="mx-1 w-[50%] text-sky-600"
+                  />
+                )}
                 <button
-                  className="flex items-center space-x-1"
-                  onClick={() => handleLikeDislike(post.postId)}
-                >
-                  {Object.keys(post?.likes).includes(userId) ? (
-                    <HeartFilled style={{ fontSize: "20px", color: "red" }} />
-                  ) : (
-                    <HeartOutlined style={{ fontSize: "20px" }} />
-                  )}
-                  <span>{Object.keys(post?.likes).length}</span>
-                </button>
-                <button
-                  className="flex items-center space-x-1"
+                  className="flex items-center space-x-1 w-[50%]"
                   onClick={() =>
                     setCommentsShown((prevIds) => {
                       if (prevIds.includes(post.postId))
@@ -229,24 +249,39 @@ export default function Feed({
                   <span>{post?.comments.length}</span>
                 </button>
               </div>
-              <div className="flex gap-2">
-                {userId === post?.userId && (
-                  <DeleteFilled
-                    className="cursor-pointer text-red-700 bg-red-200 p-3 rounded-full"
-                    onClick={() => handlePostDelete(post?.postId)}
+              <div className="flex gap-2 items-center">
+                {!(loading === loadingState[1]) ? (
+                  userId === post?.userId && (
+                    <DeleteFilled
+                      className="cursor-pointer text-red-700 bg-red-200 p-3 rounded-full w-1/2"
+                      onClick={() => handlePostDelete(post?.postId)}
+                    />
+                  )
+                ) : (
+                  <LoadingOutlined
+                    style={{ fontSize: "24px" }}
+                    className="mx-1 w-[50%] text-sky-600"
                   />
                 )}
                 {userId === post?.userId && !isEditing && (
                   <EditFilled
-                    className="cursor-pointer text-yellow-700 bg-yellow-200 p-3 rounded-full"
+                    className="cursor-pointer text-yellow-700 bg-yellow-200 p-3 rounded-full w-1/2"
                     onClick={() => setIsEditing(post?.postId)}
                   />
                 )}
-                {userId === post?.userId && isEditing === post?.postId && (
-                  <CheckCircleFilled
-                    className="rounded-full"
-                    onClick={() => handlePostEdit(post?.postId)}
-                    style={{ fontSize: "36px", color: "green" }}
+                {!(loading === loadingState[2]) ? (
+                  userId === post?.userId &&
+                  isEditing === post?.postId && (
+                    <CheckCircleFilled
+                      className="w-1/2 rounded-full"
+                      onClick={() => handlePostEdit(post?.postId)}
+                      style={{ fontSize: "36px", color: "green" }}
+                    />
+                  )
+                ) : (
+                  <LoadingOutlined
+                    style={{ fontSize: "24px" }}
+                    className="mx-1 w-[50%] text-sky-600"
                   />
                 )}
               </div>
@@ -264,7 +299,7 @@ export default function Feed({
                   </div>
                 ))}
                 <form
-                  className="flex md:flex-row flex-col items-center justify-between gap-2 my-2"
+                  className="flex md:flex-row flex-col justify-between gap-2 my-3 -mb-2"
                   onSubmit={(e) => handleNewComment(e, post.postId)}
                 >
                   <input
@@ -274,11 +309,15 @@ export default function Feed({
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Add a comment..."
                     autoComplete="off"
-                    className="outline-sky-400 p-2 w-full flex-1 border-2"
+                    className="outline-sky-800 p-1 w-full flex-1 border-2 border-sky-600"
                   />
-                  <button className="text-sky-50 text-sm bg-sky-400 hover:bg-sky-300 p-2 rounded-full">
-                    Comment
-                  </button>
+                  {!(loading === loadingState[3]) ? (
+                    <button className="text-sky-50 text-sm bg-sky-800 hover:bg-sky-600 px-2 rounded-sm">
+                      Comment
+                    </button>
+                  ) : (
+                    <LoadingOutlined className="text-2xl text-sky-600" />
+                  )}
                 </form>
               </>
             </div>
