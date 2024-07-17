@@ -5,6 +5,7 @@ import FriendList from "../Friends/FriendList";
 import Feed from "./Feed";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useUserIdContext } from "../../contexts/UserIdContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function HomePage() {
   const [friendList, setFriendList] = useState(null);
   const [feed, setFeed] = useState(null);
   const { token, userId } = localStorage;
+  const { setUserId } = useUserIdContext();
 
   const fetchData = async (url, setter) => {
     try {
@@ -25,12 +27,16 @@ export default function HomePage() {
         const data = await response.json();
         setter(data);
       } else if (response.status === 403) {
+        localStorage.clear();
+        setUserId(null);
         return navigate("/login");
       } else {
         throw new Error("Something went wrong!");
       }
     } catch (error) {
       console.log(error.message);
+      localStorage.clear();
+      setUserId(null);
     }
   };
 
