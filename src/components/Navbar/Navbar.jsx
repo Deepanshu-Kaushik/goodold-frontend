@@ -1,14 +1,16 @@
 import { BellTwoTone, MessageTwoTone, SunFilled } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import SearchBar from "./SearchBar";
+import { useUserIdContext } from "../../contexts/UserIdContext";
 
 export default function Navbar() {
   const location = useLocation();
+  const { setUserId } = useUserIdContext();
   let isNotAuthenticated =
     location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <div className="flex-col md:flex-row flex gap-4 md:gap-8 justify-around items-center p-3 md:p-5 bg-white select-none w-full sticky top-0 shadow-xl">
+    <div className="flex-col md:flex-row flex gap-4 md:gap-8 justify-around items-center p-3 md:p-5 bg-white select-none w-full sticky top-0 shadow-md z-50">
       <div
         className={`flex flex-col md:flex-row gap-2 md:gap-8 md:w-[50%] items-center ${
           !isNotAuthenticated ? "justify-start" : "justify-center"
@@ -51,6 +53,7 @@ export default function Navbar() {
             className="bg-[#e34432] text-white rounded-md p-1 py-0.5 md:p-3 md:py-1 border border-black hover:shadow-lg hover:shadow-red-900"
             onClick={() => {
               localStorage.clear();
+              setUserId(null);
             }}
           >
             Logout

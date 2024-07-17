@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import Card from "./Card";
+import Card from "../Card";
 import {
   AudioFilled,
   FileGifOutlined,
@@ -22,7 +22,7 @@ export default function CreatePost({ userData, setFeed }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const { access_token: token, userId } = localStorage;
+      const { token, userId } = localStorage;
       if (!token || !userId) return navigate("/login");
 
       const postDataToSend = new FormData();

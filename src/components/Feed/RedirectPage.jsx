@@ -7,7 +7,7 @@ export default function RedirectPage() {
 
   useEffect(() => {
     !(async function () {
-      const { access_token: token, userId } = localStorage;
+      const { token, userId } = localStorage;
       if (!token || !userId) return navigate("/login");
     })();
   }, []);

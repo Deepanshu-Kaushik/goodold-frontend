@@ -1,9 +1,11 @@
 import React from "react";
-import Card from "./Card";
+import Card from "../Card";
 import Friend from "./Friend";
 import { Link } from "react-router-dom";
+import { useSocketContext } from "../../contexts/SocketContext";
 
 export default function FriendList({ userId, friendList, setFriendList }) {
+  const { onlineUsers } = useSocketContext();
   return (
     <>
       <Card customStyle="w-full">
@@ -14,13 +16,16 @@ export default function FriendList({ userId, friendList, setFriendList }) {
               <Link
                 to={"/profile/" + friend?.userId}
                 key={friend?.userId}
-                className='hover:bg-slate-200 p-2 w-full rounded-lg'
+                className="hover:bg-slate-200 p-2 w-full rounded-lg"
               >
                 <Friend
                   userId={userId}
                   friendList={friendList}
                   setFriendList={setFriendList}
                   data={friend}
+                  isOnline={
+                    onlineUsers?.includes(friend?.userId) ? true : false
+                  }
                 />
               </Link>
             ))}

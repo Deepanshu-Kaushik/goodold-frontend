@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import Card from "./Card";
+import Card from "../Card";
 import { Link, useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
-import ErrorComponent from "./ErrorComponent";
+import ErrorComponent from "../ErrorComponent";
 import { z } from "zod";
+import { useUserIdContext } from "../../contexts/UserIdContext";
 
 export default function Login() {
+  const { setUserId } = useUserIdContext();
   const [loading, setLoading] = useState(false);
   const focusRef = useRef();
   const navigate = useNavigate();
@@ -18,7 +20,7 @@ export default function Login() {
   });
 
   useEffect(() => {
-    const { access_token: token, userId } = localStorage;
+    const { token, userId } = localStorage;
     if (token && userId) return navigate("/");
     focusRef.current?.focus();
   }, []);
@@ -63,8 +65,9 @@ export default function Login() {
 
       if (response.status >= 200 && response.status <= 210) {
         const userData = await response.json();
-        localStorage.setItem("access_token", userData.token);
+        localStorage.setItem("token", userData.token);
         localStorage.setItem("userId", userData.user._id);
+        setUserId(userData.user._id);
         localStorage.setItem("userPicturePath", userData.user.userPicturePath);
         return navigate(`/`);
       } else if (response.status === 400) {
@@ -124,7 +127,10 @@ export default function Login() {
             </button>
           )}
         </form>
-        <Link to="/register" className="font-bold text-sky-800 hover:text-sky-600 underline">
+        <Link
+          to="/register"
+          className="font-bold text-sky-800 hover:text-sky-600 underline"
+        >
           {"Don't"} have an account? Sign Up here.
         </Link>
       </Card>

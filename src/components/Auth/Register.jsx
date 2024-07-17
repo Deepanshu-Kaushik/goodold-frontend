@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import Card from "./Card";
+import Card from "../Card";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  EyeInvisibleTwoTone,
-  EyeTwoTone,
-  LoadingOutlined,
-} from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import { z } from "zod";
-import ErrorComponent from "./ErrorComponent";
+import ErrorComponent from "../ErrorComponent";
+import { useUserIdContext } from "../../contexts/UserIdContext";
 
 export default function Register() {
+  const { setUserId } = useUserIdContext();
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
-  const [previewImage, setPreviewImage] = useState(false);
   const navigate = useNavigate();
   const focusRef = useRef();
   const schema = z.object({
@@ -37,7 +34,7 @@ export default function Register() {
       .max(20, { message: "Password should be maximum of length 20." }),
   });
   useEffect(() => {
-    const { access_token: token, userId } = localStorage;
+    const { token, userId } = localStorage;
     if (token && userId) return navigate("/");
     focusRef.current?.focus();
   }, []);
@@ -102,8 +99,9 @@ export default function Register() {
       );
       if (userData.status === 200) {
         userData = await userData.json();
-        localStorage.setItem("access_token", userData.token);
+        localStorage.setItem("token", userData.token);
         localStorage.setItem("userId", userData.user._id);
+        setUserId(userData.user._iuseUserIdContextd);
         localStorage.setItem("userPicturePath", userData.user.userPicturePath);
         return navigate(`/`);
       } else if (userData.status === 400) {
@@ -131,6 +129,20 @@ export default function Register() {
           onSubmit={handleSubmit}
           encType="multipart/form-data"
         >
+          <div className="flex flex-col items-center gap-2 mb-2">
+            {image && (
+              <img
+                className="w-28 h-28 object-cover rounded-full border-2"
+                src={image}
+              />
+            )}
+            <label
+              htmlFor="picture"
+              className="bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2"
+            >
+              Upload profile picture
+            </label>
+          </div>
           <div className="gap-2 w-full flex flex-col ">
             <input
               type="text"
@@ -190,34 +202,6 @@ export default function Register() {
             onChange={handleOnChange}
             hidden
           />
-          <div className="flex justify-start items-center gap-1 relative">
-            <label
-              htmlFor="picture"
-              className="bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2"
-            >
-              Upload profile picture
-            </label>
-            {image &&
-              (!previewImage ? (
-                <EyeTwoTone
-                  className="text-xl p-2 rounded-full hover:bg-slate-200"
-                  twoToneColor="#0284c7"
-                  onClick={() => setPreviewImage(true)}
-                />
-              ) : (
-                <EyeInvisibleTwoTone
-                  className="text-xl p-2 rounded-full hover:bg-slate-200"
-                  twoToneColor="#0284c7"
-                  onClick={() => setPreviewImage(false)}
-                />
-              ))}
-          </div>
-          {previewImage && (
-            <img
-              className="h-80 object-cover border-2 p-0.5 border-sky-600"
-              src={image}
-            />
-          )}
           <input
             type="text"
             placeholder="Email"

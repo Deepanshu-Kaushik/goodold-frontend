@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Card from "./Card";
+import Card from "../Card";
 import {
   CheckCircleFilled,
   CommentOutlined,
@@ -9,7 +9,7 @@ import {
   HeartOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import Friend from "./Friend";
+import Friend from "../Friends/Friend";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Feed({
@@ -25,7 +25,7 @@ export default function Feed({
   const [description, setDescription] = useState("");
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
-  const { access_token: token, userId } = localStorage;
+  const { token, userId } = localStorage;
   const loadingState = [
     "like-button",
     "delete-button",

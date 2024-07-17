@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import { Link } from "react-router-dom";
 
 export default function SearchBar() {
-  const { access_token: token } = localStorage;
+  const { token } = localStorage;
   const [searchProfile, setSearchProfile] = useState("");
   const [foundUsers, setFoundUsers] = useState([]);
   const searchRef = useRef(null);

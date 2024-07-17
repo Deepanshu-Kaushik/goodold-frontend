@@ -5,24 +5,21 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client";
+import { useSocketContext } from "../../contexts/SocketContext";
 
 export default function ChatBox({ friend, setIsChatOpen }) {
   const { userId: friendId, firstName, lastName } = friend;
   const [loading, setLoading] = useState(false);
   const [pendingMessage, setPendingMessage] = useState(false);
-  const { access_token: token, userId, userPicturePath } = localStorage;
+  const { token, userId, userPicturePath } = localStorage;
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
   const chatsRef = useRef();
   const navigate = useNavigate();
+  const { socket } = useSocketContext();
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_BACKEND_URL, {
-      query: {
-        userId,
-      },
-    });
+    if (!socket) return;
     socket.on("newMessage", (newMessage) => {
       setAllMessages((prev) => {
         const messages = prev.slice();
@@ -64,8 +61,7 @@ export default function ChatBox({ friend, setIsChatOpen }) {
 
     getAllMessages();
     return () => {
-      socket.removeAllListeners();
-      socket.disconnect();
+      socket.removeListener("newMessage");
     };
   }, [friendId]);
 

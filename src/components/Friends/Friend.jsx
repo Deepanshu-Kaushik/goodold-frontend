@@ -11,11 +11,12 @@ export default function Friend({
   userId: profileId,
   setFriendList,
   data,
+  isOnline,
   isHidden = false,
 }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { access_token: token, userId } = localStorage;
+  const { token, userId } = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
 
   async function handleAddRemoveFriend(friendId) {
@@ -52,10 +53,15 @@ export default function Friend({
   return (
     <div className="flex items-center justify-between select-none">
       <div className="flex gap-4 items-center">
-        <img
-          src={data?.userPicturePath}
-          className="size-12 rounded-full object-cover"
-        />
+        <div className="relative">
+          <img
+            src={data?.userPicturePath}
+            className="size-12 rounded-full object-cover"
+          />
+          {isOnline && (
+            <div className="absolute bottom-0 right-0 bg-green-500 size-4 rounded-full" />
+          )}
+        </div>
         <div>
           <div className="font-medium text-slate-600">
             {data?.firstName} {data?.lastName}

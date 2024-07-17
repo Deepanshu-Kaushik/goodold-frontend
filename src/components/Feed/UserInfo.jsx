@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Card from "./Card";
+import Card from "../Card";
 import {
   LoadingOutlined,
   PushpinOutlined,
@@ -11,7 +11,7 @@ import { Link, useParams } from "react-router-dom";
 
 export default function UserInfo({ userData, friendList, setFriendList }) {
   const { profileId } = useParams();
-  const { access_token: token, userId } = localStorage;
+  const { token, userId } = localStorage;
   const friendsIds = friendList?.map((friend) => friend.userId) || [];
   const [loading, setLoading] = useState(false);
 

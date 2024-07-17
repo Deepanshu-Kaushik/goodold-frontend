@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import UserInfo from "./UserInfo";
-import FriendList from "./FriendList";
-import { useNavigate, useParams } from "react-router-dom";
-import { LoadingOutlined } from "@ant-design/icons";
 import CreatePost from "./CreatePost";
+import FriendList from "../Friends/FriendList";
 import Feed from "./Feed";
+import { useNavigate } from "react-router-dom";
+import { LoadingOutlined } from "@ant-design/icons";
 
-export default function ProfilePage() {
+export default function HomePage() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [friendList, setFriendList] = useState(null);
   const [feed, setFeed] = useState(null);
-  const { profileId } = useParams();
-  const { access_token: token, userId } = localStorage;
+  const { token, userId } = localStorage;
 
   const fetchData = async (url, setter) => {
     try {
@@ -42,20 +41,20 @@ export default function ProfilePage() {
     }
 
     const getUserData = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/user/${profileId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}`,
       setUserData
     );
     const getFriendList = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/user/${profileId}/friends`,
+      `${import.meta.env.VITE_BACKEND_URL}/user/${userId}/friends`,
       setFriendList
     );
     const getFeed = fetchData(
-      `${import.meta.env.VITE_BACKEND_URL}/posts/${profileId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/posts`,
       setFeed
     );
 
     Promise.all([getUserData, getFriendList, getFeed]);
-  }, [profileId]);
+  }, [userId]);
 
   if (!userData || !friendList || !feed) {
     return (
@@ -74,21 +73,19 @@ export default function ProfilePage() {
           setFriendList={setFriendList}
         />
         <FriendList
-          userId={profileId}
+          userId={userId}
           friendList={friendList}
           setFriendList={setFriendList}
         />
       </div>
       <div className="flex flex-col flex-1 gap-4">
-        {userId === profileId && (
-          <CreatePost userData={userData} setFeed={setFeed} />
-        )}
+        <CreatePost userData={userData} setFeed={setFeed} />
         <Feed
           friendList={friendList}
           setFriendList={setFriendList}
           feed={feed}
           setFeed={setFeed}
-          userId={profileId}
+          userId={userId}
         />
       </div>
     </div>

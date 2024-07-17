@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import Card from "./Card";
-import Friend from "./Friend";
+import Card from "../Card";
+import Friend from "../Friends/Friend";
 import ChatBox from "./ChatBox";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import ErrorComponent from "./ErrorComponent";
+import ErrorComponent from "../ErrorComponent";
+import { useSocketContext } from "../../contexts/SocketContext";
 
 export default function ChatRoom() {
   const [isChatOpen, setIsChatOpen] = useState(null);
   const [friendList, setFriendList] = useState();
-  const { access_token: token, userId } = localStorage;
+  const { token, userId } = localStorage;
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { onlineUsers } = useSocketContext();
 
   useEffect(() => {
     !(async () => {
@@ -74,6 +76,9 @@ export default function ChatRoom() {
                   friendList={friendList}
                   setFriendList={setFriendList}
                   data={friend}
+                  isOnline={
+                    onlineUsers?.includes(friend?.userId) ? true : false
+                  }
                   isHidden
                 />
               </div>
