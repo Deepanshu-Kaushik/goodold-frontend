@@ -68,8 +68,8 @@ export default function ChatBox({ friend, setIsChatOpen, isOnline }) {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    setPendingMessage(true);
     if (!message) return;
+    setPendingMessage(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/message/send/${friendId}`,
