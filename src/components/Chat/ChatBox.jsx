@@ -6,8 +6,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocketContext } from "../../contexts/SocketContext";
+import formatDate from "../../utils/formatDate";
 
-export default function ChatBox({ friend, setIsChatOpen }) {
+export default function ChatBox({ friend, setIsChatOpen, isOnline }) {
   const { userId: friendId, firstName, lastName } = friend;
   const [loading, setLoading] = useState(false);
   const [pendingMessage, setPendingMessage] = useState(false);
@@ -116,35 +117,54 @@ export default function ChatBox({ friend, setIsChatOpen }) {
           <ArrowLeftOutlined />
         </button>
         <h1 className="font-bold text-xl md:text-3xl">
-          {firstName} {lastName}
+          <div>
+            {firstName} {lastName}
+          </div>
+          {isOnline ? (
+            <div className="text-sm text-blue-600">Online</div>
+          ) : (
+            <div className="text-sm text-blue-600">
+              Last online {formatDate(friend?.lastOnline)}
+            </div>
+          )}
         </h1>
       </div>
       <hr className="my-2" />
       <div className="flex flex-col overflow-y-auto h-full" ref={chatsRef}>
         {!loading ? (
           allMessages?.map((message) => (
-            <div
-              key={message._id}
-              className={`flex m-1 md:m-2 gap-1 md:gap-2 ${
-                message?.senderId === userId ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              <img
-                src={
-                  message?.senderId === userId
-                    ? userPicturePath
-                    : friend?.userPicturePath
-                }
-                className="size-6 md:size-12 rounded-full object-cover"
-              />
+            <div key={message._id} className="flex flex-col w-full">
               <div
-                className={`${
-                  message?.senderId === userId
-                    ? "bg-sky-600 text-white"
-                    : "bg-gray-200"
-                } p-3 rounded-xl max-w-[70%]`}
+                className={`flex m-1 md:m-2 gap-1 md:gap-2 ${
+                  message?.senderId === userId ? "flex-row-reverse" : "flex-row"
+                }`}
               >
-                {message.message}
+                <img
+                  src={
+                    message?.senderId === userId
+                      ? userPicturePath
+                      : friend?.userPicturePath
+                  }
+                  className="size-6 md:size-12 rounded-full object-cover"
+                />
+                <div
+                  className={`${
+                    message?.senderId === userId
+                      ? "bg-sky-600 text-white"
+                      : "bg-gray-200"
+                  } p-3 rounded-xl max-w-[70%]`}
+                >
+                  {message.message}
+                </div>
+              </div>
+              <div
+                className={`text-xs text-sky-600 ${
+                  message?.senderId !== userId
+                    ? "self-start ml-8 md:ml-16"
+                    : "self-end mr-8 md:mr-16"
+                }`}
+              >
+                {formatDate(message.createdAt)}
               </div>
             </div>
           ))
@@ -159,6 +179,7 @@ export default function ChatBox({ friend, setIsChatOpen }) {
         <input
           type="text"
           placeholder="Message..."
+          autoFocus
           className="flex-1 bg-transparent outline-none p-1"
           value={message}
           onChange={(e) => setMessage(e.target.value)}

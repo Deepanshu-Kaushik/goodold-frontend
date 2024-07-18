@@ -2,10 +2,12 @@ import { BellTwoTone, MessageTwoTone, SunFilled } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { useUserIdContext } from "../../contexts/UserIdContext";
+import { useNewMessageContext } from "../../contexts/NewMessageContext";
 
 export default function Navbar() {
   const location = useLocation();
   const { setUserId } = useUserIdContext();
+  const { newMessage } = useNewMessageContext();
   let isNotAuthenticated =
     location.pathname === "/login" || location.pathname === "/register";
 
@@ -35,12 +37,15 @@ export default function Navbar() {
             />
             <Link
               to="/chat"
-              className="flex items-center justify-center rounded-full"
+              className="flex items-center justify-center rounded-full relative"
             >
               <MessageTwoTone
                 style={{ cursor: "pointer" }}
                 className="text-lg md:text-2xl"
               />
+              {newMessage && (
+                <div className="absolute -top-1 right-0 bg-red-600 size-3 rounded-full" />
+              )}
             </Link>
             <BellTwoTone
               className="text-lg md:text-2xl"

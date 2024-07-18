@@ -7,6 +7,7 @@ import ChatRoom from "./components/Chat/ChatRoom";
 import ProfilePage from "./components/Feed/ProfilePage";
 import { SocketContextProvider } from "./contexts/SocketContext";
 import { UserIdContextProvider } from "./contexts/UserIdContext";
+import { NewMessageContextProvider } from "./contexts/NewMessageContext";
 
 const routes = createBrowserRouter([
   {
@@ -26,14 +27,15 @@ const routes = createBrowserRouter([
 ]);
 
 export default function App() {
-
   return (
     <div className="app">
-      <UserIdContextProvider>
-        <SocketContextProvider>
-          <RouterProvider router={routes} />
-        </SocketContextProvider>
-      </UserIdContextProvider>
+      <NewMessageContextProvider>
+        <UserIdContextProvider>
+          <SocketContextProvider>
+            <RouterProvider router={routes} />
+          </SocketContextProvider>
+        </UserIdContextProvider>
+      </NewMessageContextProvider>
     </div>
   );
 }

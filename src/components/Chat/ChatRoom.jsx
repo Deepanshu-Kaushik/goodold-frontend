@@ -6,6 +6,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ErrorComponent from "../ErrorComponent";
 import { useSocketContext } from "../../contexts/SocketContext";
+import { useNewMessageContext } from "../../contexts/NewMessageContext";
 
 export default function ChatRoom() {
   const [isChatOpen, setIsChatOpen] = useState(null);
@@ -14,8 +15,10 @@ export default function ChatRoom() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { onlineUsers } = useSocketContext();
+  const { setNewMessage } = useNewMessageContext();
 
   useEffect(() => {
+    setNewMessage(false);
     !(async () => {
       setLoading(true);
       try {
@@ -90,7 +93,11 @@ export default function ChatRoom() {
           )}
         </div>
         {isChatOpen && (
-          <ChatBox friend={isChatOpen} setIsChatOpen={setIsChatOpen} />
+          <ChatBox
+            friend={isChatOpen}
+            setIsChatOpen={setIsChatOpen}
+            isOnline={onlineUsers?.includes(isChatOpen?.userId) ? true : false}
+          />
         )}
       </Card>
     </div>
