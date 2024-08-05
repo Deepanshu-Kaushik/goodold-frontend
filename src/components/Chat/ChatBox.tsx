@@ -175,7 +175,7 @@ export default function ChatBox({
           const updatedConversations =
             prev?.map((convo) => {
               if (friendId && convo.participants._id === friendId) {
-                delete convo.messageSeenAt[friendId];
+                delete messageSeenAt[friendId];
                 convo.latestMessage = messageQuery;
               }
               return convo;
