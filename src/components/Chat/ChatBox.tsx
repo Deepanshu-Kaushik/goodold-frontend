@@ -152,6 +152,8 @@ export default function ChatBox({
     e.preventDefault();
     setPendingMessage(true);
     if (!message) return;
+    setMessage('');
+    const messageQuery = message;
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/send/${friendId}`, {
         method: 'POST',
@@ -159,7 +161,7 @@ export default function ChatBox({
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ messageQuery }),
       });
 
       if (response.status >= 200 && response.status <= 210) {
@@ -174,7 +176,7 @@ export default function ChatBox({
             prev?.map((convo) => {
               if (friendId && convo.participants._id === friendId) {
                 delete convo.messageSeenAt[friendId];
-                convo.latestMessage = message;
+                convo.latestMessage = messageQuery;
               }
               return convo;
             }) || null;
@@ -188,7 +190,6 @@ export default function ChatBox({
     } catch (error) {
       console.log(error);
     }
-    setMessage('');
     setTimeout(() => {
       if (chatsRef.current) chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
       setPendingMessage(false);
