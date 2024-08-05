@@ -161,7 +161,7 @@ export default function ChatBox({
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messageQuery }),
+        body: JSON.stringify({ message: messageQuery }),
       });
 
       if (response.status >= 200 && response.status <= 210) {
