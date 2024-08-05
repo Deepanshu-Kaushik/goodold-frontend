@@ -57,7 +57,7 @@ export default function ChatBox({
           chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
           markAsRead();
         }
-      }, 10);
+      }, 100);
     });
 
     socket.on('messageSeen', (messageSeenTime: string) => {
@@ -75,7 +75,7 @@ export default function ChatBox({
         if (chatsRef.current) {
           chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
         }
-      }, 10);
+      }, 100);
     });
 
     const markAsRead = async () => {
@@ -126,9 +126,11 @@ export default function ChatBox({
           const data: MessageType[] = await response.json();
           setAllMessages(data);
           setLoading(false);
-          if (chatsRef.current) {
-            chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
-          }
+          setTimeout(() => {
+            if (chatsRef.current) {
+              chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
+            }
+          }, 100);
         } else if (response.status === 403) {
           return navigate('/login');
         } else {
@@ -190,7 +192,7 @@ export default function ChatBox({
     setTimeout(() => {
       if (chatsRef.current) chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
       setPendingMessage(false);
-    }, 10);
+    }, 100);
   };
 
   return (
