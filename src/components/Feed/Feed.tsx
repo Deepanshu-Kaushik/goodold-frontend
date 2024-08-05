@@ -1,5 +1,5 @@
-import { useState } from "react";
-import Card from "../Card";
+import { useState } from 'react';
+import Card from '../Card';
 import {
   CheckCircleFilled,
   CommentOutlined,
@@ -8,9 +8,19 @@ import {
   HeartFilled,
   HeartOutlined,
   LoadingOutlined,
-} from "@ant-design/icons";
-import Friend from "../Friends/Friend";
-import { Link, useNavigate } from "react-router-dom";
+} from '@ant-design/icons';
+import Friend from '../Friends/Friend';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserType } from '../../types/user-type';
+import { PostType } from '../../types/post-type';
+
+type FeedType = {
+  friendList: UserType[];
+  setFriendList: React.Dispatch<React.SetStateAction<UserType[]>>;
+  feed: PostType[];
+  setFeed: React.Dispatch<React.SetStateAction<PostType[]>>;
+  userId: string | undefined;
+};
 
 export default function Feed({
   friendList,
@@ -18,37 +28,38 @@ export default function Feed({
   feed,
   setFeed,
   userId: profileId,
-}) {
-  const [commentsShown, setCommentsShown] = useState([]);
-  const [loading, setLoading] = useState(null);
-  const [isEditing, setIsEditing] = useState();
-  const [description, setDescription] = useState("");
-  const [comment, setComment] = useState("");
+}: FeedType) {
+  const [commentsShown, setCommentsShown] = useState<any[]>([]);
+  const [loading, setLoading] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState<string | undefined | null>(null);
+  const [description, setDescription] = useState('');
+  const [comment, setComment] = useState('');
   const navigate = useNavigate();
   const { token, userId } = localStorage;
   const loadingState = [
-    "like-button",
-    "delete-button",
-    "edit-button",
-    "comment-button",
+    'like-button',
+    'delete-button',
+    'edit-button',
+    'comment-button',
   ];
 
-  async function handleLikeDislike(postId) {
+  async function handleLikeDislike(postId: string | undefined) {
     try {
-      if (!token || !userId) return navigate("/login");
+      if (!token || !userId) return navigate('/login');
+      if (!postId) return;
       setLoading(loadingState[0]);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/like`,
         {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             userId,
           }),
-        }
+        },
       );
 
       if (response.status >= 200 && response.status <= 210) {
@@ -57,68 +68,68 @@ export default function Feed({
           feed.map((post) => {
             if (post.postId === updatedPost.postId) return updatedPost;
             else return post;
-          })
+          }),
         );
       } else if (response.status === 403) {
-        return navigate("/login");
+        return navigate('/login');
       } else {
-        throw new Error("Something went wrong!");
+        throw new Error('Something went wrong!');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
     setLoading(null);
   }
 
-  async function handlePostDelete(postId) {
+  async function handlePostDelete(postId: string | undefined) {
     try {
-      if (!token || !userId) return navigate("/login");
+      if (!token || !userId) return navigate('/login');
       setLoading(loadingState[1]);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/delete`,
         {
-          method: "DELETE",
+          method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             userId,
           }),
-        }
+        },
       );
 
       if (response.status >= 200 && response.status <= 210) {
         setFeed((feed) => feed.filter((post) => postId !== post.postId));
       } else if (response.status === 403) {
-        return navigate("/login");
+        return navigate('/login');
       } else {
-        throw new Error("Something went wrong!");
+        throw new Error('Something went wrong!');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
     setLoading(null);
   }
 
-  async function handlePostEdit(postId) {
+  async function handlePostEdit(postId: string | undefined) {
     if (!description) return;
     setLoading(loadingState[2]);
     try {
-      if (!token || !userId) return navigate("/login");
+      if (!token || !userId) return navigate('/login');
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/edit`,
         {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             userId,
             description,
           }),
-        }
+        },
       );
 
       if (response.status >= 200 && response.status <= 210) {
@@ -127,39 +138,42 @@ export default function Feed({
           feed.map((post) => {
             if (post.postId === updatedPost.postId) return updatedPost;
             else return post;
-          })
+          }),
         );
         setIsEditing(null);
-        setDescription("");
+        setDescription('');
       } else if (response.status === 403) {
-        return navigate("/login");
+        return navigate('/login');
       } else {
-        throw new Error("Something went wrong!");
+        throw new Error('Something went wrong!');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
     setLoading(null);
   }
 
-  async function handleNewComment(e, postId) {
+  async function handleNewComment(
+    e: React.FormEvent<HTMLFormElement>,
+    postId: string | undefined,
+  ) {
     e.preventDefault();
     if (!comment) return;
     setLoading(loadingState[3]);
     try {
-      if (!token || !userId) return navigate("/login");
+      if (!token || !userId) return navigate('/login');
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}/comment`,
         {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             comment,
           }),
-        }
+        },
       );
 
       if (response.status >= 200 && response.status <= 210) {
@@ -168,28 +182,28 @@ export default function Feed({
           feed.map((post) => {
             if (post.postId === updatedPost.postId) return updatedPost;
             else return post;
-          })
+          }),
         );
-        setComment("");
+        setComment('');
       } else if (response.status === 403) {
-        return navigate("/login");
+        return navigate('/login');
       } else {
-        throw new Error("Something went wrong!");
+        throw new Error('Something went wrong!');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
-    setLoading(false);
+    setLoading(null);
   }
 
   return (
-    <div className="space-y-4 my-2 w-full pb-6" key={feed?.length}>
+    <div className='space-y-4 my-2 w-full pb-6' key={feed?.length}>
       {feed?.map((post) => (
-        <Card key={post.postId} customStyle="w-full">
-          <div className="flex flex-col gap-4">
+        <Card key={post.postId} customStyle='w-full'>
+          <div className='flex flex-col gap-4'>
             <Link
-              to={"/profile/" + post?.userId}
-              className="hover:bg-slate-200 p-2 w-full rounded-lg"
+              to={'/profile/' + post?.userId}
+              className='hover:bg-slate-200 p-2 w-full rounded-lg'
             >
               <Friend
                 userId={profileId}
@@ -199,44 +213,46 @@ export default function Feed({
               />
             </Link>
             {!(isEditing === post?.postId) ? (
-              <h3 className="text-sm text-slate-600">{post?.description}</h3>
+              <h3 className='text-sm text-slate-600'>{post?.description}</h3>
             ) : (
               <input
-                type="text"
-                name="description"
+                type='text'
+                name='description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={post?.description}
-                className="outline-sky-400 p-2 border-2"
-                autoComplete="off"
+                className='outline-sky-400 p-2 border-2'
+                autoComplete='off'
               />
             )}
             <img
               src={post?.postPicturePath}
-              className="object-contain max-h-[800px] rounded-xl"
+              className='object-contain max-h-[800px] rounded-xl'
             />
-            <div className="mx-3 flex justify-between items-center text-gray-500">
-              <div className="flex items-center space-x-6">
+            <div className='mx-3 flex justify-between items-center text-gray-500'>
+              <div className='flex items-center space-x-6'>
                 {!(loading === loadingState[0]) ? (
                   <button
-                    className="flex items-center space-x-1 w-[50%]"
+                    className='flex items-center space-x-1 w-[50%]'
                     onClick={() => handleLikeDislike(post.postId)}
                   >
-                    {Object.keys(post?.likes).includes(userId) ? (
-                      <HeartFilled style={{ fontSize: "20px", color: "red" }} />
+                    {post?.likes && Object.keys(post.likes).includes(userId) ? (
+                      <HeartFilled style={{ fontSize: '20px', color: 'red' }} />
                     ) : (
-                      <HeartOutlined style={{ fontSize: "20px" }} />
+                      <HeartOutlined style={{ fontSize: '20px' }} />
                     )}
-                    <span>{Object.keys(post?.likes).length}</span>
+                    <span>
+                      {post?.likes && Object.keys(post?.likes).length}
+                    </span>
                   </button>
                 ) : (
                   <LoadingOutlined
-                    style={{ fontSize: "24px" }}
-                    className="mx-1 w-[50%] text-sky-600"
+                    style={{ fontSize: '24px' }}
+                    className='mx-1 w-[50%] text-sky-600'
                   />
                 )}
                 <button
-                  className="flex items-center space-x-1 w-[50%]"
+                  className='flex items-center space-x-1 w-[50%]'
                   onClick={() =>
                     setCommentsShown((prevIds) => {
                       if (prevIds.includes(post.postId))
@@ -245,27 +261,27 @@ export default function Feed({
                     })
                   }
                 >
-                  <CommentOutlined style={{ fontSize: "20px" }} />
+                  <CommentOutlined style={{ fontSize: '20px' }} />
                   <span>{post?.comments.length}</span>
                 </button>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className='flex gap-2 items-center'>
                 {!(loading === loadingState[1]) ? (
                   userId === post?.userId && (
                     <DeleteFilled
-                      className="cursor-pointer text-red-700 bg-red-200 p-3 rounded-full w-1/2"
+                      className='cursor-pointer text-red-700 bg-red-200 p-3 rounded-full w-1/2'
                       onClick={() => handlePostDelete(post?.postId)}
                     />
                   )
                 ) : (
                   <LoadingOutlined
-                    style={{ fontSize: "24px" }}
-                    className="mx-1 w-[50%] text-sky-600"
+                    style={{ fontSize: '24px' }}
+                    className='mx-1 w-[50%] text-sky-600'
                   />
                 )}
                 {userId === post?.userId && !isEditing && (
                   <EditFilled
-                    className="cursor-pointer text-yellow-700 bg-yellow-200 p-3 rounded-full w-1/2"
+                    className='cursor-pointer text-yellow-700 bg-yellow-200 p-3 rounded-full w-1/2'
                     onClick={() => setIsEditing(post?.postId)}
                   />
                 )}
@@ -273,50 +289,51 @@ export default function Feed({
                   userId === post?.userId &&
                   isEditing === post?.postId && (
                     <CheckCircleFilled
-                      className="w-1/2 rounded-full"
+                      className='w-1/2 rounded-full'
                       onClick={() => handlePostEdit(post?.postId)}
-                      style={{ fontSize: "36px", color: "green" }}
+                      style={{ fontSize: '36px', color: 'green' }}
                     />
                   )
                 ) : (
                   <LoadingOutlined
-                    style={{ fontSize: "24px" }}
-                    className="mx-1 w-[50%] text-sky-600"
+                    style={{ fontSize: '24px' }}
+                    className='mx-1 w-[50%] text-sky-600'
                   />
                 )}
               </div>
             </div>
           </div>
           {commentsShown.includes(post.postId) && (
-            <div className={post.comments.length ? "mt-4" : ""}>
+            <div className={post.comments.length ? 'mt-4' : ''}>
               <>
                 {post.comments.map((comment, index) => (
                   <div key={index}>
                     <hr />
-                    <div className="text-xs m-2 text-gray-400 font-semibold">
+                    <div className='text-xs m-2 text-gray-400 font-semibold'>
                       {comment}
                     </div>
                   </div>
                 ))}
                 <form
-                  className="flex md:flex-row flex-col justify-between gap-2 my-3 -mb-2"
+                  className='flex md:flex-row flex-col justify-between gap-2 my-3 -mb-2'
                   onSubmit={(e) => handleNewComment(e, post.postId)}
                 >
                   <input
-                    type="text"
-                    name="comment"
+                    type='text'
+                    name='comment'
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    autoComplete="off"
-                    className="outline-sky-800 p-1 w-full flex-1 border-2 border-sky-600"
+                    placeholder='Add a comment...'
+                    autoFocus
+                    autoComplete='off'
+                    className='outline-sky-800 p-1 w-full flex-1 border-2 border-sky-600'
                   />
                   {!(loading === loadingState[3]) ? (
-                    <button className="text-sky-50 text-sm bg-sky-800 hover:bg-sky-600 px-2 rounded-sm">
+                    <button className='text-sky-50 text-sm bg-sky-800 hover:bg-sky-600 px-2 rounded-sm'>
                       Comment
                     </button>
                   ) : (
-                    <LoadingOutlined className="text-2xl text-sky-600" />
+                    <LoadingOutlined className='text-2xl text-sky-600' />
                   )}
                 </form>
               </>

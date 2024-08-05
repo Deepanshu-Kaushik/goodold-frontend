@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
-export default function formatDate(date) {
-  if(!date) return 'a while ago...'
+export default function formatDate(date: string | null | undefined) {
+  if (!date) return 'a while ago...';
   const messageDate = DateTime.fromISO(date);
   const now = DateTime.local();
 
