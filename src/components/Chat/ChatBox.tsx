@@ -213,7 +213,7 @@ export default function ChatBox({
         </h1>
       </div>
       <hr className='my-2' />
-      <div className='flex flex-col overflow-y-auto h-full' ref={chatsRef}>
+      <div className='flex flex-col overflow-y-auto h-full overflow-x-hidden' ref={chatsRef}>
         {!loading ? (
           allMessages?.map((message) => (
             <div key={message._id} className='flex flex-col w-full'>
