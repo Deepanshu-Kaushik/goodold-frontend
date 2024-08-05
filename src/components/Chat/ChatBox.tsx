@@ -152,8 +152,8 @@ export default function ChatBox({
     e.preventDefault();
     setPendingMessage(true);
     if (!message) return;
-    setMessage('');
     const messageQuery = message;
+    setMessage('');
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/send/${friendId}`, {
         method: 'POST',
