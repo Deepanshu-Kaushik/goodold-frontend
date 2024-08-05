@@ -29,8 +29,6 @@ export const ConversationsContextProvider = ({ children }: ChildrenType) => {
   const { userId } = useUserIdContext();
   const { socket } = useSocketContext();
 
-  if(!userId || !token) return;
-
   let unreadCountTotal = 0;
   if (conversations && userId) {
     conversations.map((convo) => {
@@ -57,6 +55,8 @@ export const ConversationsContextProvider = ({ children }: ChildrenType) => {
   }
 
   useEffect(() => {
+    if (!userId || !token) return;
+
     !(async () => {
       setLoading(true);
       try {
