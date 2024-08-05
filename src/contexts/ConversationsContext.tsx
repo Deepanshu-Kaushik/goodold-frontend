@@ -28,6 +28,9 @@ export const ConversationsContextProvider = ({ children }: ChildrenType) => {
   const { token } = localStorage;
   const { userId } = useUserIdContext();
   const { socket } = useSocketContext();
+
+  if(!userId || !token) return;
+
   let unreadCountTotal = 0;
   if (conversations && userId) {
     conversations.map((convo) => {
