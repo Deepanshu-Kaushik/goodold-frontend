@@ -193,7 +193,7 @@ export default function ChatBox({
   };
 
   return (
-    <div className='flex-1 lg:max-w-[80%] flex flex-col justify-center'>
+    <div className='flex-1 lg:max-w-[80%] flex flex-col justify-center overflow-x-hidden'>
       <div className='flex items-center gap-4'>
         <button className='md:hidden p-1 rounded-full hover:bg-slate-200' onClick={() => setIsChatOpen(null)}>
           <ArrowLeftOutlined />
@@ -258,7 +258,7 @@ export default function ChatBox({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button type='submit' className='flex'>
+        <button type='submit' className='flex' disabled={pendingMessage}>
           {pendingMessage ? (
             <LoadingOutlined className='text-blue-600' style={{ fontSize: '20px' }} />
           ) : (
