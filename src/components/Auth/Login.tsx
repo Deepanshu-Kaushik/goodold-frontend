@@ -33,9 +33,7 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState<LoginFormErrors>({});
 
-  function handleOnChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) {
+  function handleOnChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setFormData((formData) => ({
       ...formData,
       [e.target.name]: e.target.value,
@@ -59,16 +57,13 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
-        {
-          method: 'POST',
-          body: JSON.stringify(formData),
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
       if (response.status >= 200 && response.status <= 210) {
         const userData = await response.json();
@@ -95,49 +90,42 @@ export default function Login() {
 
   return (
     <div className='flex p-4 justify-center'>
-      <Card customStyle='w-[80%] md:w-[60%]'>
-        <h2>Welcome to Goodold!</h2>
+      <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
+        <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
         <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit}>
           <input
             type='text'
             placeholder='Email'
             name='email'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.email}
             onChange={handleOnChange}
             autoComplete='off'
             ref={focusRef}
           />
-          {formErrors.email && (
-            <ErrorComponent>{formErrors.email}</ErrorComponent>
-          )}
+          {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
           <input
             type='password'
             placeholder='Password'
             name='password'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.password}
             autoComplete='off'
             onChange={handleOnChange}
           />
-          {formErrors.password && (
-            <ErrorComponent>{formErrors.password}</ErrorComponent>
-          )}
+          {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
           {loading ? (
             <LoadingOutlined className='text-5xl text-sky-600' />
           ) : (
             <button
               type='submit'
-              className='text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center'
+              className='text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-950 dark:hover:bg-blue-700 dark:text-gray-300 tracking-widest'
             >
               Login
             </button>
           )}
         </form>
-        <Link
-          to='/register'
-          className='font-bold text-sky-800 hover:text-sky-600 underline'
-        >
+        <Link to='/register' className='font-bold text-sky-800 hover:text-sky-600 underline'>
           {"Don't"} have an account? Sign Up here.
         </Link>
       </Card>

@@ -3,7 +3,7 @@ import { ChildrenType } from '../types/children-type';
 import { ConversationType } from '../types/conversation-type';
 import { useUserIdContext } from './UserIdContext';
 import { useSocketContext } from './SocketContext';
-import { MessageType } from '../types/message-type';
+import { MessageNotificationType } from '../types/message-notification-type';
 
 interface ConversationsContextType {
   conversations: ConversationType[] | null;
@@ -60,19 +60,19 @@ export const ConversationsContextProvider = ({ children }: ChildrenType) => {
     !(async () => {
       setLoading(true);
       try {
-        await Promise.all([getConversations()]);
+        await getConversations();
       } catch (error) {
         console.log(error);
       }
       setLoading(false);
 
       if (!socket) return;
-      socket.on('chatRoomMessage', (newMessage: MessageType) => {
+      socket.on('messageNotification', ({ newMessage, senderData: _ }: MessageNotificationType) => {
         setConversations((prev) => {
           const updatedConversations =
             prev?.map((convo) => {
               if (convo.participants._id === newMessage.senderId) {
-                convo.latestMessage = newMessage.message;
+                if (newMessage.message) convo.latestMessage = newMessage.message;
                 convo.numberOfUnread[newMessage.receiverId] += 1;
               }
               return convo;

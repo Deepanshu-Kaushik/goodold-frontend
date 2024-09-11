@@ -8,5 +8,14 @@ export type PostType = {
   postPicturePath?: string;
   userPicturePath?: string;
   likes?: { [key: string]: boolean };
-  comments: string[];
+  comments: [
+    {
+      _id: string;
+      userId: string;
+      comment: string;
+      createdAt: string;
+      updatedAt: string;
+      whoCommented: string;
+    },
+  ];
 };

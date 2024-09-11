@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Card from '../Card';
 import ChatBox from './ChatBox';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -14,6 +14,10 @@ export default function ChatRoom() {
   const { onlineUsers } = useSocketContext();
   const { conversations, setConversations, loading } = useConversationsContext();
 
+  const handleConversationClick = useCallback((conversation: ConversationType | null) => {
+    setIsChatOpen((prev) => (prev?.participants._id === conversation?.participants?._id ? null : conversation));
+  }, []);
+
   if (loading)
     return (
       <div className='flex justify-center items-center h-screen'>
@@ -22,22 +26,18 @@ export default function ChatRoom() {
     );
 
   return (
-    <div className='flex-grow p-3 overflow-hidden'>
-      <Card customStyle='h-full shadow-2xl shadow-blue-900 flex max-h-screen gap-4 justify-between'>
+    <div className='flex-grow overflow-hidden pt-1'>
+      <Card customStyle='h-full max-h-screen' className='flex gap-4 justify-between dark:bg-lord-300'>
         <div
           className={`md:flex flex-col gap-1 lg:w-[20%] overflow-x-clip overflow-y-auto ${isChatOpen ? 'hidden' : 'w-full'} `}
         >
           {conversations?.length ? (
             conversations?.map((conversation) => (
               <div
-                className={`cursor-pointer w-full p-2 relative rounded-lg hover:bg-slate-200 ${
+                className={`cursor-pointer w-full p-2 relative rounded-lg hover:bg-slate-200 dark:hover:bg-dark-400 ${
                   isChatOpen?._id === conversation.participants?._id ? 'bg-gray-200' : ''
                 }`}
-                onClick={() =>
-                  setIsChatOpen((prev) =>
-                    prev?.participants._id === conversation?.participants?._id ? null : conversation,
-                  )
-                }
+                onClick={() => handleConversationClick(conversation)}
                 key={conversation.participants?._id}
               >
                 <div className='flex gap-4 items-center'>
@@ -48,15 +48,15 @@ export default function ChatRoom() {
                     />
                     {typeof conversation?.participants?._id === 'string' &&
                       onlineUsers?.includes(conversation?.participants?._id) && (
-                        <div className='absolute bottom-0 right-0 bg-green-500 size-4 rounded-full' title='Online'/>
+                        <div className='absolute bottom-0 right-0 bg-green-500 size-4 rounded-full' title='Online' />
                       )}
                   </div>
                   <div className='flex items-center justify-between w-full flex-1'>
                     <div className='flex-1'>
-                      <div className='font-medium text-slate-600'>
+                      <div className='font-medium text-slate-600 dark:text-white'>
                         {conversation?.participants?.firstName} {conversation?.participants?.lastName}
                       </div>
-                      <div className='text-gray-400 text-sm max-w-24 max-h-6 truncate'>
+                      <div className='text-gray-400 text-sm max-w-24 max-h-6 truncate dark:text-primary-100'>
                         {conversation?.latestMessage}
                       </div>
                     </div>

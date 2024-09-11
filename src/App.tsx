@@ -9,6 +9,10 @@ import { SocketContextProvider } from './contexts/SocketContext';
 import { UserIdContextProvider } from './contexts/UserIdContext';
 import { ConversationsContextProvider } from './contexts/ConversationsContext';
 import { NewMessageBoxContextProvider } from './contexts/NewMessageBoxContext';
+import { FriendListContextContextProvider } from './contexts/FriendListContext';
+import Notifications from './components/Notifications';
+import { NotificationsContextProvider } from './contexts/NotificationContext';
+import { ThemeContextProvider } from './contexts/ThemeContext';
 
 const routes = createBrowserRouter([
   {
@@ -23,6 +27,7 @@ const routes = createBrowserRouter([
         element: <ChatRoom />,
       },
       { path: '/profile/:profileId', element: <ProfilePage /> },
+      { path: '/notifications', element: <Notifications /> },
     ],
   },
 ]);
@@ -30,15 +35,21 @@ const routes = createBrowserRouter([
 export default function App() {
   return (
     <div className='app'>
-      <NewMessageBoxContextProvider>
-        <UserIdContextProvider>
-          <SocketContextProvider>
-            <ConversationsContextProvider>
-              <RouterProvider router={routes} />
-            </ConversationsContextProvider>
-          </SocketContextProvider>
-        </UserIdContextProvider>
-      </NewMessageBoxContextProvider>
+      <ThemeContextProvider>
+        <NewMessageBoxContextProvider>
+          <UserIdContextProvider>
+            <SocketContextProvider>
+              <ConversationsContextProvider>
+                <FriendListContextContextProvider>
+                  <NotificationsContextProvider>
+                    <RouterProvider router={routes} />
+                  </NotificationsContextProvider>
+                </FriendListContextContextProvider>
+              </ConversationsContextProvider>
+            </SocketContextProvider>
+          </UserIdContextProvider>
+        </NewMessageBoxContextProvider>
+      </ThemeContextProvider>
     </div>
   );
 }

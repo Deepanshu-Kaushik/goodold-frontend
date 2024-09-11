@@ -3,8 +3,7 @@ import io, { Socket } from 'socket.io-client';
 import { useUserIdContext } from './UserIdContext';
 import notificationSound from '../assets/notification.mp3';
 import { ChildrenType } from '../types/children-type';
-import { MessageType } from '../types/message-type';
-import { UserType } from '../types/user-type';
+import { MessageNotificationType } from '../types/message-notification-type';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -41,16 +40,13 @@ export const SocketContextProvider = ({ children }: ChildrenType) => {
       setOnlineUsers(onlineUsers);
     });
 
-    socket.on(
-      'messageNotification',
-      ({ newMessage, senderData }: { newMessage: MessageType; senderData: UserType }) => {
-        const sound = new Audio(notificationSound);
-        sound.play();
-        new Notification(`${senderData.firstName} ${senderData.lastName}: ${newMessage.message}`, {
-          icon: 'logo.png'
-        });
-      },
-    );
+    socket.on('messageNotification', ({ newMessage, senderData }: MessageNotificationType) => {
+      const sound = new Audio(notificationSound);
+      sound.play();
+      new Notification(`${senderData.firstName} ${senderData.lastName}: ${newMessage.message}`, {
+        icon: 'logo.png',
+      });
+    });
 
     return () => {
       socket?.disconnect();

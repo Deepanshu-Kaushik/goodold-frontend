@@ -6,6 +6,13 @@ import formatDate from '../../utils/formatDate';
 import { UserType } from '../../types/user-type';
 import { MessageType } from '../../types/message-type';
 import { ConversationType } from '../../types/conversation-type';
+import { MessageNotificationType } from '../../types/message-notification-type';
+import markAsRead from '../../services/mark-as-read';
+import getAllMessages from '../../services/get-all-messages';
+import PreviewImage from './PreviewImage';
+import onClearConversation from '../../services/on-clear-conversation';
+import { GrAttachment } from 'react-icons/gr';
+import { IoMdCloseCircle } from 'react-icons/io';
 
 type ChatBoxType = {
   friend: UserType;
@@ -33,10 +40,17 @@ export default function ChatBox({
   const chatsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { socket } = useSocketContext();
+  const [imageToDisplay, setImageToDisplay] = useState<string | null>(null);
+  const [picture, setPicture] = useState<any>(null);
+  const pictureRef = useRef<HTMLInputElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>('');
 
   useEffect(() => {
     if (!socket) return;
-    socket.on('newMessage', (newMessage: MessageType) => {
+    let timerChatRef1: number;
+    let timerChatRef2: number;
+    socket.on('messageNotification', ({ newMessage, senderData: _ }: MessageNotificationType) => {
       setAllMessages((prev) => {
         const messages: MessageType[] = prev.slice();
         messages.push(newMessage);
@@ -52,10 +66,10 @@ export default function ChatBox({
           }) || null;
         return updatedConversations;
       });
-      setTimeout(() => {
+      timerChatRef1 = setTimeout(() => {
         if (chatsRef.current) {
           chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
-          markAsRead();
+          markAsRead({ userId, token, friendId, setConversations, navigate });
         }
       }, 100);
     });
@@ -71,97 +85,42 @@ export default function ChatBox({
           }) || null;
         return updatedConversations;
       });
-      setTimeout(() => {
+      timerChatRef2 = setTimeout(() => {
         if (chatsRef.current) {
           chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
         }
       }, 100);
     });
 
-    const markAsRead = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/message-read/${userId}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ friendId }),
-        });
-
-        if (response.status >= 200 && response.status <= 210) {
-          const data: ConversationType = await response.json();
-          setConversations((prev) => {
-            const updatedConversations =
-              prev?.map((convo) => {
-                if (convo._id === data._id) {
-                  return data;
-                } else {
-                  return convo;
-                }
-              }) || null;
-            return updatedConversations;
-          });
-        } else if (response.status === 403) {
-          return navigate('/login');
-        } else {
-          throw new Error('Something went wrong!');
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const getAllMessages = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/${friendId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status >= 200 && response.status <= 210) {
-          const data: MessageType[] = await response.json();
-          setAllMessages(data);
-          setLoading(false);
-          setTimeout(() => {
-            if (chatsRef.current) {
-              chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
-            }
-          }, 100);
-        } else if (response.status === 403) {
-          return navigate('/login');
-        } else {
-          throw new Error('Something went wrong!');
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getAllMessages();
-    !alreadyRead && markAsRead();
+    getAllMessages({ setLoading, abortControllerRef, friendId, token, setAllMessages, chatsRef, navigate });
+    !alreadyRead && markAsRead({ userId, token, friendId, setConversations, navigate });
     return () => {
       socket.removeListener('newMessage');
+      clearTimeout(timerChatRef1);
+      clearTimeout(timerChatRef2);
     };
   }, [friendId]);
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!message && !picture) return;
     setPendingMessage(true);
-    if (!message) return;
     const messageQuery = message;
+    const pictureToSend = picture;
     setMessage('');
+    setPicture(null);
+    setImageToDisplay(null);
+    const chatDataTOSend = new FormData();
+    chatDataTOSend.append('message', messageQuery);
+    if (pictureToSend) chatDataTOSend.append('picture', pictureToSend);
+
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/send/${friendId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: messageQuery }),
+        body: chatDataTOSend,
       });
 
       if (response.status >= 200 && response.status <= 210) {
@@ -176,7 +135,8 @@ export default function ChatBox({
             prev?.map((convo) => {
               if (friendId && convo.participants._id === friendId) {
                 delete messageSeenAt[friendId];
-                convo.latestMessage = messageQuery;
+                if (messageQuery) convo.latestMessage = messageQuery;
+                else convo.latestMessage = 'IMAGE';
               }
               return convo;
             }) || null;
@@ -189,31 +149,47 @@ export default function ChatBox({
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setTimeout(() => {
+        if (chatsRef.current) chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
+        setPendingMessage(false);
+      }, 100);
     }
-    setTimeout(() => {
-      if (chatsRef.current) chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
-      setPendingMessage(false);
-    }, 100);
+  };
+
+  const clearConversation = async () => {
+    await onClearConversation({ token, userId, friendId, navigate, setLoading, setAllMessages });
   };
 
   return (
     <div className='flex-1 lg:max-w-[80%] flex flex-col justify-center overflow-x-hidden'>
-      <div className='flex items-center gap-4'>
-        <button className='md:hidden p-1 rounded-full hover:bg-slate-200' onClick={() => setIsChatOpen(null)}>
+      <div className='flex items-center gap-4 justify-between'>
+        <button
+          className='md:hidden p-1 rounded-full hover:bg-slate-200 dark:text-white dark:hover:bg-lord-100'
+          onClick={() => setIsChatOpen(null)}
+        >
           <ArrowLeftOutlined />
         </button>
-        <h1 className='font-bold text-xl md:text-3xl'>
-          <div>
+        <h1 className='font-bold text-xl md:text-3xl flex-1'>
+          <div className='dark:text-white tracking-wide'>
             {firstName} {lastName}
           </div>
-          {isOnline ? (
-            <div className='text-sm text-blue-600'>Online</div>
-          ) : (
-            <div className='text-sm text-blue-600'>Last online {formatDate(friend?.lastOnline)}</div>
-          )}
+
+          <div className='text-sm text-blue-600 tracking-wider'>
+            {isOnline ? 'Online' : `Last online ${formatDate(friend?.lastOnline)}`}
+          </div>
         </h1>
+        <button
+          className='text-blue-500 font-bold self-end tracking-widest'
+          onClick={clearConversation}
+          hidden={!allMessages.length}
+          disabled={!allMessages.length}
+          title='Deletes messages for both participants'
+        >
+          Clear all
+        </button>
       </div>
-      <hr className='my-2' />
+      <hr className='my-2 dark:border-primary-100' />
       <div className='flex flex-col overflow-y-auto h-full overflow-x-hidden' ref={chatsRef}>
         {!loading ? (
           allMessages?.map((message) => (
@@ -223,16 +199,33 @@ export default function ChatBox({
                   message?.senderId === userId ? 'flex-row-reverse' : 'flex-row'
                 }`}
               >
-                <img
-                  src={message?.senderId === userId ? userPicturePath : friend?.userPicturePath}
-                  className='size-6 md:size-12 rounded-full object-cover'
-                />
+                {(message.message || message.chatPicturePath) && (
+                  <img
+                    src={message?.senderId === userId ? userPicturePath : friend?.userPicturePath}
+                    className='size-6 md:size-12 rounded-full object-cover'
+                  />
+                )}
                 <div
-                  className={`${
-                    message?.senderId === userId ? 'bg-sky-600 text-white' : 'bg-gray-200'
-                  } p-3 rounded-xl max-w-[70%] break-words`}
+                  className={`max-w-[70%] gap-1 flex flex-col ${message?.senderId === userId ? 'items-end' : 'items-start'}`}
                 >
-                  {message.message}
+                  {message.chatPicturePath && (
+                    <img
+                      src={message.chatPicturePath}
+                      className='max-h-96 border-2 border-black cursor-pointer'
+                      onClick={() => !!message.chatPicturePath && setPreviewImage(message.chatPicturePath)}
+                    />
+                  )}
+                  {message.message && (
+                    <div
+                      className={`${
+                        message?.senderId === userId
+                          ? 'bg-sky-600 dark:bg-cyan-900 text-white'
+                          : 'bg-gray-200 dark:bg-lord-200 dark:text-white'
+                      } p-3 rounded-xl break-words w-fit`}
+                    >
+                      {message.message}
+                    </div>
+                  )}
                 </div>
               </div>
               <div
@@ -253,23 +246,67 @@ export default function ChatBox({
           </div>
         )}
       </div>
-      <form className='flex bg-gray-200 rounded-lg py-2 px-4 mt-4 items-center' onSubmit={handleSendMessage}>
+      <form
+        className='flex bg-gray-200 rounded-lg py-2 px-4 mt-4 items-center dark:bg-dark-600 dark:text-white'
+        onSubmit={handleSendMessage}
+        encType='multipart/form-data'
+      >
+        {imageToDisplay && (
+          <div className='relative'>
+            <img
+              className='max-h-24 p-0.5 object-contain border-2 border-sky-600 cursor-pointer'
+              src={imageToDisplay}
+              onClick={() => setPreviewImage(imageToDisplay)}
+            />
+            <IoMdCloseCircle
+              className='absolute -top-1 -right-1 text-xl cursor-pointer text-red-600 bg-white rounded-full'
+              onClick={(e) => {
+                e.preventDefault();
+                setImageToDisplay(null);
+                setPicture(null);
+              }}
+            />
+          </div>
+        )}
         <input
           type='text'
           placeholder='Message...'
           autoFocus
-          className='flex-1 bg-transparent outline-none p-1'
+          className='flex-1 bg-transparent outline-none p-1 placeholder:text-sm dark:placeholder:text-white'
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button type='submit' className='flex' disabled={pendingMessage}>
-          {pendingMessage ? (
-            <LoadingOutlined className='text-blue-600' style={{ fontSize: '20px' }} />
-          ) : (
-            <SendOutlined className='text-blue-600' style={{ fontSize: '20px' }} />
-          )}
-        </button>
+        <input
+          ref={pictureRef}
+          type='file'
+          id='picture'
+          name='picture'
+          accept='image/jpeg, image/jpg, image/png'
+          hidden
+          onChange={(e) => {
+            const { files } = e.target as HTMLInputElement;
+            if (!files) return;
+            setPicture(files[0]);
+            setImageToDisplay(URL.createObjectURL(files[0]));
+          }}
+        />
+        <div className='w-[1px] h-full bg-gray-700 dark:bg-primary-100' />
+        <div className='flex justify-between items-center min-w-20 '>
+          <button type='button' className='outline-none'>
+            <label htmlFor='picture'>
+              <GrAttachment className='ml-4 cursor-pointer' style={{ fontSize: '20px' }} />
+            </label>
+          </button>
+          <button type='submit' className='flex outline-none' disabled={pendingMessage}>
+            {pendingMessage ? (
+              <LoadingOutlined className='text-blue-600' style={{ fontSize: '20px' }} />
+            ) : (
+              <SendOutlined className='text-blue-600' style={{ fontSize: '20px' }} />
+            )}
+          </button>
+        </div>
       </form>
+      {!!previewImage.length && <PreviewImage previewImage={previewImage} setPreviewImage={setPreviewImage} />}
     </div>
   );
 }

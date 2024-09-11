@@ -59,13 +59,13 @@ export default function SearchBar() {
   );
 
   return (
-    <div className='relative' ref={searchRef}>
+    <div className='relative z-50' ref={searchRef}>
       <div
-        className='application-grey p-0.5 md:p-2 rounded-xl flex items-center'
+        className='application-grey dark:outline-dark-100 dark:bg-dark-600 dark:text-white p-0.5 md:p-2 rounded-xl flex items-center'
         title='Search for a profile'
       >
         <input
-          className='application-grey outline-none ml-2 placeholder:text-sm'
+          className='bg-inherit outline-none ml-2 placeholder:text-sm dark:placeholder:text-white'
           type='text'
           placeholder='Search...'
           value={searchProfile}
@@ -76,16 +76,17 @@ export default function SearchBar() {
             paddingRight: '10px',
             cursor: 'pointer',
           }}
+          className='dark:text-white'
         />
       </div>
       {searchProfile.trim() && (
-        <div className='absolute flex flex-col bg-white w-full top-12 rounded-lg shadow-xl shadow-slate-400 border-e-2 border-l-2 border-t-2 border-slate-300 max-h-screen overflow-y-auto'>
+        <div className='absolute flex flex-col bg-white w-full top-12 rounded-lg shadow-xl shadow-slate-400 dark:text-white border-slate-300 max-h-screen overflow-y-auto dark:shadow-slate-700 dark:bg-dark-500'>
           {foundUsers?.map((ele) =>
             ele?._id !== '0' ? (
               <Link
                 to={'/profile/' + ele?._id}
                 key={ele?._id}
-                className='hover:bg-slate-200 p-4 py-2 gap-2 w-full flex items-center'
+                className='hover:bg-slate-200 dark:hover:bg-dark-400 p-4 py-2 gap-2 w-full flex items-center dark:font-semibold'
                 onClick={() => setSearchProfile('')}
               >
                 <img
@@ -99,7 +100,7 @@ export default function SearchBar() {
             ) : (
               <span
                 key={ele?._id}
-                className='text-red-600 w-full text-center p-2'
+                className='text-red-600 dark:text-red-500 tracking-widest dark:font-bold w-full text-center p-2'
               >
                 {ele.firstName}
               </span>

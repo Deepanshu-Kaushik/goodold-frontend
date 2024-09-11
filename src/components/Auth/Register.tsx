@@ -40,12 +40,8 @@ export default function Register() {
       .string()
       .min(3, { message: 'Last name should be minimum of length 3.' })
       .max(20, { message: 'Last name should be maximum of length 20.' }),
-    location: z
-      .string()
-      .min(3, { message: 'Location should be minimum of length 3.' }),
-    occupation: z
-      .string()
-      .min(3, { message: 'Occupation should be minimum of length 3.' }),
+    location: z.string().min(3, { message: 'Location should be minimum of length 3.' }),
+    occupation: z.string().min(3, { message: 'Occupation should be minimum of length 3.' }),
     email: z.string().email({ message: 'Invalid email.' }),
     password: z
       .string()
@@ -116,13 +112,10 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/register`,
-        {
-          method: 'POST',
-          body: formDataToSend,
-        },
-      );
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, {
+        method: 'POST',
+        body: formDataToSend,
+      });
       if (response.status === 200) {
         const userData = await response.json();
         localStorage.setItem('token', userData.token);
@@ -148,23 +141,14 @@ export default function Register() {
 
   return (
     <div className='flex p-4 justify-center select-none'>
-      <Card customStyle='w-[80%] md:w-[60%]'>
-        <h2>Welcome to Goodold!</h2>
-        <form
-          className='flex flex-col my-4 gap-2'
-          onSubmit={handleSubmit}
-          encType='multipart/form-data'
-        >
+      <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
+        <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
+        <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit} encType='multipart/form-data'>
           <div className='flex flex-col items-center gap-2 mb-2'>
-            {image && (
-              <img
-                className='w-28 h-28 object-center rounded-full border-2'
-                src={image}
-              />
-            )}
+            {image && <img className='w-28 h-28 object-cover rounded-full border-2 dark:border-lord-200' src={image} />}
             <label
               htmlFor='picture'
-              className='bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2'
+              className='bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2 dark:bg-blue-950 dark:hover:bg-blue-700 tracking-wider dark:text-gray-300'
             >
               Upload profile picture
             </label>
@@ -172,7 +156,7 @@ export default function Register() {
           <div className='gap-2 w-full flex flex-col '>
             <input
               type='text'
-              className='outline-sky-400 p-2 flex-1 border-2'
+              className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
               name='firstName'
               placeholder='First name'
               value={formData.firstName}
@@ -180,46 +164,38 @@ export default function Register() {
               autoComplete='off'
               ref={focusRef}
             />
-            {formErrors.firstName && (
-              <ErrorComponent>{formErrors.firstName}</ErrorComponent>
-            )}
+            {formErrors.firstName && <ErrorComponent>{formErrors.firstName}</ErrorComponent>}
             <input
               type='text'
-              className='outline-sky-400 p-2 flex-1 border-2'
+              className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
               name='lastName'
               placeholder='Last name'
               value={formData.lastName}
               autoComplete='off'
               onChange={handleOnChange}
             />
-            {formErrors.lastName && (
-              <ErrorComponent>{formErrors.lastName}</ErrorComponent>
-            )}
+            {formErrors.lastName && <ErrorComponent>{formErrors.lastName}</ErrorComponent>}
           </div>
           <input
             type='text'
             placeholder='Location'
             name='location'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.location}
             autoComplete='off'
             onChange={handleOnChange}
           />
-          {formErrors.location && (
-            <ErrorComponent>{formErrors.location}</ErrorComponent>
-          )}
+          {formErrors.location && <ErrorComponent>{formErrors.location}</ErrorComponent>}
           <input
             type='text'
             placeholder='Occupation'
             name='occupation'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.occupation}
             autoComplete='off'
             onChange={handleOnChange}
           />
-          {formErrors.occupation && (
-            <ErrorComponent>{formErrors.occupation}</ErrorComponent>
-          )}
+          {formErrors.occupation && <ErrorComponent>{formErrors.occupation}</ErrorComponent>}
           <input
             type='file'
             name='picture'
@@ -232,41 +208,34 @@ export default function Register() {
             type='text'
             placeholder='Email'
             name='email'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.email}
             autoComplete='off'
             onChange={handleOnChange}
           />
-          {formErrors.email && (
-            <ErrorComponent>{formErrors.email}</ErrorComponent>
-          )}
+          {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
           <input
             type='password'
             placeholder='Password'
             name='password'
-            className='outline-sky-400 p-2 border-2'
+            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
             value={formData.password}
             autoComplete='off'
             onChange={handleOnChange}
           />
-          {formErrors.password && (
-            <ErrorComponent>{formErrors.password}</ErrorComponent>
-          )}
+          {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
           {loading ? (
             <LoadingOutlined className='text-5xl text-sky-600' />
           ) : (
             <button
               type='submit'
-              className='text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center'
+              className='text-sky-50 tracking-widest font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-950 dark:hover:bg-blue-700 dark:text-gray-300'
             >
               Register
             </button>
           )}
         </form>
-        <Link
-          to='/login'
-          className='font-bold text-sky-800 hover:text-sky-600 underline'
-        >
+        <Link to='/login' className='font-bold text-sky-800 hover:text-sky-600 underline'>
           Already have an account? Sign In here.
         </Link>
       </Card>

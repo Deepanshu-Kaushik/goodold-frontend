@@ -1,6 +1,5 @@
 export type UserType = {
   _id?: string;
-  senderId?: UserType;
   userId?: string;
   firstName?: string;
   lastName?: string;
@@ -8,10 +7,10 @@ export type UserType = {
   password?: string;
   location?: string;
   occupation?: string;
-  viewedProfile?: string;
-  impressions?: string;
   userPicturePath?: string;
-  comments?: string[] | undefined;
+  userPictureId?: string;
   friends?: any[];
   lastOnline?: string | null | undefined;
+  createdAt?: string;
+  updatedAt?: string;
 };
