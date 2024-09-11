@@ -16,9 +16,10 @@ import { LuCheckCircle } from 'react-icons/lu';
 type UserInfoType = {
   userData: UserType;
   setFriendList: React.Dispatch<React.SetStateAction<UserType[]>>;
+  numberOfFriends: number;
 };
 
-export default function UserInfo({ userData, setFriendList }: UserInfoType) {
+export default function UserInfo({ userData, setFriendList, numberOfFriends }: UserInfoType) {
   const { profileId } = useParams();
   const { token, userId } = localStorage;
   const [loading, setLoading] = useState<boolean>(false);
@@ -86,7 +87,7 @@ export default function UserInfo({ userData, setFriendList }: UserInfoType) {
               >
                 {userData?.firstName} {userData?.lastName}
               </Link>
-              <div className='text-xs text-slate-600 dark:text-white'>{friendList?.length} friends</div>
+              <div className='text-xs text-slate-600 dark:text-white'>{numberOfFriends} friends</div>
             </div>
           </div>
           <div className='flex items-center'>
