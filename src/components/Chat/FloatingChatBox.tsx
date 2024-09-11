@@ -38,8 +38,7 @@ export default function FloatingChatBox({ name, id }: FloatingChatBoxType) {
       >
         <div className='flex'>
           <h1 className='text-2xl text-center flex-1 dark:text-white tracking-wide'>Message {name}</h1>
-          {/* <CloseCircleTwoTone className='mx-2 text-2xl' onClick={() => setNewMessageBox(false)} /> */}
-          <IoMdCloseCircle className='text-2xl text-red-600 bg-white rounded-full' onClick={() => setNewMessageBox(false)} />
+          <IoMdCloseCircle className='text-2xl text-red-600 bg-white rounded-full cursor-pointer' onClick={() => setNewMessageBox(false)} />
         </div>
         <form
           className='flex bg-gray-200 rounded-lg py-2 px-4 mt-4 items-center dark:border dark:bg-dark-600 dark:border-lord-100 dark:text-white'
