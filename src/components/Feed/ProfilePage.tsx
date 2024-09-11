@@ -41,7 +41,8 @@ const fetchData = async (
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<UserType>({});
-  const { friendList, setFriendList } = useFriendListContext();
+  const [friendList, setProfileFriendList] = useState<UserType[]>([]);
+  const { setFriendList } = useFriendListContext();
   const [feed, setFeed] = useState<PostType[]>([]);
   const { token, userId } = localStorage;
   const { profileId } = useParams();
@@ -59,8 +60,14 @@ export default function ProfilePage() {
       navigate,
     );
     const getFeed = fetchData(`${import.meta.env.VITE_BACKEND_URL}/posts/${profileId}`, setFeed, token, navigate);
+    const getFriends = fetchData(
+      `${import.meta.env.VITE_BACKEND_URL}/user/${profileId}/friends`,
+      (data: any) => setProfileFriendList(data.formattedFriends),
+      token,
+      navigate,
+    );
 
-    Promise.all([getUserData, getFeed]);
+    Promise.all([getUserData, getFeed, getFriends]);
   }, [profileId]);
 
   if (!userData || !friendList || !feed) {
