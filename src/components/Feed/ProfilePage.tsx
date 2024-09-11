@@ -81,7 +81,7 @@ export default function ProfilePage() {
   return (
     <div className='w-[90%] m-auto flex lg:flex-row flex-col py-6 gap-10 h-full'>
       <div className='flex flex-col gap-4 lg:w-[30%]'>
-        <UserInfo userData={userData} setFriendList={setFriendList} />
+        <UserInfo userData={userData} setFriendList={setFriendList} numberOfFriends={friendList.length} />
         <FriendList friendList={friendList} setFriendList={setFriendList} />
       </div>
       <div className='flex flex-col flex-1 gap-4'>
