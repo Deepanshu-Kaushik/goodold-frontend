@@ -45,6 +45,7 @@ export default function Feed({ setFriendList, feed, setFeed }: FeedType) {
   const { hash } = useLocation();
 
   useEffect(() => {
+    if (!feed) return;
     const timer = setTimeout(() => {
       const element = document.getElementById(hash.substring(1));
       if (element) {
@@ -53,7 +54,7 @@ export default function Feed({ setFriendList, feed, setFeed }: FeedType) {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [hash]);
+  }, [hash, feed]);
 
   async function handleLikeDislike(postId: string | undefined) {
     await onHandleLikeDislike({ token, userId, postId, navigate, setLoading, setFeed });
