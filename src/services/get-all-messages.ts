@@ -1,5 +1,6 @@
 import { NavigateFunction } from 'react-router-dom';
 import { MessageType } from '../types/message-type';
+import { toast } from 'react-toastify';
 
 type GetAllMessages = {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,11 +45,13 @@ export default async ({
         }
       }, 100);
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 };

@@ -26,6 +26,7 @@ import onRemoveNotification from '../../services/on-remove-notification';
 import formatDate from '../../utils/formatDate';
 import { FaCheck } from 'react-icons/fa';
 import { TbHttpDelete } from 'react-icons/tb';
+import { toast } from 'react-toastify';
 
 type FeedType = {
   setFriendList: React.Dispatch<React.SetStateAction<UserType[]>>;
@@ -137,6 +138,7 @@ export default function Feed({ setFriendList, feed, setFeed }: FeedType) {
                 name='description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                autoFocus
                 placeholder={post?.description}
                 className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
                 autoComplete='off'
@@ -154,14 +156,20 @@ export default function Feed({ setFriendList, feed, setFeed }: FeedType) {
                       <HeartFilled
                         style={{ fontSize: '20px', color: 'red' }}
                         title='Dislike post'
-                        onClick={() => removeNotification(post.userId, post.postId)}
+                        onClick={() => {
+                          removeNotification(post.userId, post.postId);
+                          toast.success('Disliked post');
+                        }}
                       />
                     ) : (
                       <HeartOutlined
                         className='dark:text-white'
                         title='Like post'
                         style={{ fontSize: '20px' }}
-                        onClick={() => sendLikeNotification(post.userId, post.postId)}
+                        onClick={() => {
+                          sendLikeNotification(post.userId, post.postId);
+                          toast.success('Liked post');
+                        }}
                       />
                     )}
                     <span className='dark:text-white'>{post?.likes && Object.keys(post?.likes).length}</span>
@@ -198,7 +206,10 @@ export default function Feed({ setFriendList, feed, setFeed }: FeedType) {
                   <EditFilled
                     className='cursor-pointer text-black bg-blue-400 hover:bg-blue-600 hover:text-white p-3 rounded-full dark:text-white dark:hover:text-black dark:bg-blue-700 dark:hover:bg-blue-500'
                     title='Edit post'
-                    onClick={() => setIsEditing(post?.postId)}
+                    onClick={() => {
+                      setIsEditing(post?.postId);
+                      post.description && setDescription(post.description);
+                    }}
                   />
                 )}
                 {!(loading === loadingState[2]) ? (

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { ChildrenType } from '../types/children-type';
 import { UserType } from '../types/user-type';
 import { useUserIdContext } from './UserIdContext';
+import { toast } from 'react-toastify';
 
 interface FriendListContextType {
   friendList: UserType[];
@@ -45,8 +46,12 @@ export const FriendListContextContextProvider = ({ children }: ChildrenType) => 
         setPendingRequests(pendingRequests);
         setUnAcceptedRequests(unAcceptedRequests);
       } else if (response.status === 403) {
+        toast.error('You need to re-login');
         localStorage.clear();
         setUserId(null);
+      } else if (response.status === 404) {
+        const { error } = await response.json();
+        toast.error(error);
       } else {
         throw new Error('Something went wrong!');
       }

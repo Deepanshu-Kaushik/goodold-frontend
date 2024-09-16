@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+
 type GetNotificationsType = {
   userId: string;
   token: string;
@@ -19,6 +21,7 @@ export default async ({ userId, token, setNotifications, setLoading, setUserId }
       const data = await response.json();
       setNotifications(data);
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       localStorage.clear();
       setUserId(null);
       return;
@@ -26,6 +29,7 @@ export default async ({ userId, token, setNotifications, setLoading, setUserId }
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   } finally {
     setLoading(false);

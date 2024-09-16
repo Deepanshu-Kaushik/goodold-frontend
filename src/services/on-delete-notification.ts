@@ -1,5 +1,6 @@
-import { NavigateFunction } from "react-router-dom";
-import { NotificationsType } from "../types/notifications-type";
+import { NavigateFunction } from 'react-router-dom';
+import { NotificationsType } from '../types/notifications-type';
+import { toast } from 'react-toastify';
 
 type OnDeleteNotificationType = {
   token: string;
@@ -27,12 +28,15 @@ export default async function onDeleteNotification({
     if (response.status >= 200 && response.status <= 210) {
       const data = await response.json();
       setNotifications(data);
+      toast.success('Deleted notification successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }

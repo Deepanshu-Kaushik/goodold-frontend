@@ -4,6 +4,7 @@ import { ConversationType } from '../types/conversation-type';
 import { useUserIdContext } from './UserIdContext';
 import { useSocketContext } from './SocketContext';
 import { MessageNotificationType } from '../types/message-notification-type';
+import { toast } from 'react-toastify';
 
 interface ConversationsContextType {
   conversations: ConversationType[] | null;
@@ -47,8 +48,12 @@ export const ConversationsContextProvider = ({ children }: ChildrenType) => {
       const data = await response.json();
       setConversations(data);
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       localStorage.clear();
       return;
+    } else if (response.status === 404) {
+      const { error } = await response.json();
+      toast.error(error);
     } else {
       throw new Error('Something went wrong!');
     }

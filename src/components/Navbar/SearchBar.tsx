@@ -3,6 +3,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { Link } from 'react-router-dom';
 import { UserType } from '../../types/user-type';
+import { toast } from 'react-toastify';
 
 export default function SearchBar() {
   const { token } = localStorage;
@@ -12,10 +13,7 @@ export default function SearchBar() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setSearchProfile('');
       }
     }
@@ -36,21 +34,19 @@ export default function SearchBar() {
     debounce(async (text) => {
       if (!text.trim()) return;
       try {
-        const results = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/search-user`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ query: text.trim() }),
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+        const results = await fetch(`${import.meta.env.VITE_BACKEND_URL}/search-user`, {
+          method: 'POST',
+          body: JSON.stringify({ query: text.trim() }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-        );
+        });
         const data = await results.json();
         if (data.length) setFoundUsers(data);
         else setFoundUsers([{ _id: '0', firstName: 'No user found!' }]);
       } catch (error) {
+        toast.error(error as string);
         console.error('Error fetching search results:', error);
         setFoundUsers([{ _id: '0', firstName: 'Error fetching results' }]);
       }
@@ -61,7 +57,7 @@ export default function SearchBar() {
   return (
     <div className='relative z-50' ref={searchRef}>
       <div
-        className='application-grey dark:outline-dark-100 dark:bg-dark-600 dark:text-white p-0.5 md:p-2 rounded-xl flex items-center'
+        className='bg-application-grey dark:outline-dark-100 dark:bg-dark-600 dark:text-white p-0.5 md:p-2 rounded-xl flex items-center'
         title='Search for a profile'
       >
         <input
@@ -89,10 +85,7 @@ export default function SearchBar() {
                 className='hover:bg-slate-200 dark:hover:bg-dark-400 p-4 py-2 gap-2 w-full flex items-center dark:font-semibold'
                 onClick={() => setSearchProfile('')}
               >
-                <img
-                  src={ele.userPicturePath}
-                  className='size-8 rounded-full object-cover'
-                />
+                <img src={ele.userPicturePath} className='size-8 rounded-full object-cover' />
                 <h1>
                   {ele.firstName} {ele.lastName}
                 </h1>

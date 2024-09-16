@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import HomePage from "./Homepage";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import HomePage from './Homepage';
 
 export default function RedirectPage() {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ export default function RedirectPage() {
   useEffect(() => {
     !(async function () {
       const { token, userId } = localStorage;
-      if (!token || !userId) return navigate("/login");
+      if (!token || !userId) return navigate('/login');
     })();
   }, []);
 

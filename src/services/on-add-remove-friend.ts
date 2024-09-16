@@ -1,6 +1,7 @@
 import { NavigateFunction } from 'react-router-dom';
 import { UserType } from '../types/user-type';
 import { NotificationsType } from '../types/notifications-type';
+import { toast } from 'react-toastify';
 
 type onAddRemoveFriendType = {
   friendId: string | undefined;
@@ -42,11 +43,13 @@ async function onAddRemoveFriend({
         );
       return data.removed;
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   } finally {
     setLoading(false);

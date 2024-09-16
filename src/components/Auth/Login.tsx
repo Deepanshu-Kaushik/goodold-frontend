@@ -5,6 +5,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import ErrorComponent from '../ErrorComponent';
 import { z } from 'zod';
 import { useUserIdContext } from '../../contexts/UserIdContext';
+import { toast } from 'react-toastify';
 
 export type LoginFormErrors = {
   email?: string;
@@ -74,61 +75,58 @@ export default function Login() {
         return navigate(`/`);
       } else if (response.status === 400) {
         const newError = await response.json();
-        setFormErrors({
-          password: newError.error,
-        });
-      } else if (response.status === 403) {
-        return navigate('/login');
+        throw newError.error;
       } else {
         throw new Error('Something went wrong!');
       }
     } catch (error) {
+      toast.error(error as string);
       console.log(error);
     }
     setLoading(false);
   }
 
   return (
-    <div className='flex p-4 justify-center'>
-      <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
-        <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
-        <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit}>
-          <input
-            type='text'
-            placeholder='Email'
-            name='email'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.email}
-            onChange={handleOnChange}
-            autoComplete='off'
-            ref={focusRef}
-          />
-          {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
-          <input
-            type='password'
-            placeholder='Password'
-            name='password'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.password}
-            autoComplete='off'
-            onChange={handleOnChange}
-          />
-          {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
-          {loading ? (
-            <LoadingOutlined className='text-5xl text-sky-600' />
-          ) : (
-            <button
-              type='submit'
-              className='text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-950 dark:hover:bg-blue-700 dark:text-gray-300 tracking-widest'
-            >
-              Login
-            </button>
-          )}
-        </form>
-        <Link to='/register' className='font-bold text-sky-800 hover:text-sky-600 underline'>
-          {"Don't"} have an account? Sign Up here.
-        </Link>
-      </Card>
-    </div>
+      <div className='flex p-4 justify-center'>
+        <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
+          <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
+          <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit}>
+            <input
+              type='text'
+              placeholder='Email'
+              name='email'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.email}
+              onChange={handleOnChange}
+              autoComplete='off'
+              ref={focusRef}
+            />
+            {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
+            <input
+              type='password'
+              placeholder='Password'
+              name='password'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.password}
+              autoComplete='off'
+              onChange={handleOnChange}
+            />
+            {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
+            {loading ? (
+              <LoadingOutlined className='text-5xl text-sky-600' />
+            ) : (
+              <button
+                type='submit'
+                className='text-sky-50 font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-300 tracking-widest'
+              >
+                Login
+              </button>
+            )}
+          </form>
+          <Link to='/register' className='font-bold text-sky-800 hover:text-sky-600 underline'>
+            {"Don't"} have an account? Sign Up here.
+          </Link>
+        </Card>
+      </div>
   );
 }

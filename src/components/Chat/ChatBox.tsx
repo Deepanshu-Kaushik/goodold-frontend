@@ -13,6 +13,7 @@ import PreviewImage from './PreviewImage';
 import onClearConversation from '../../services/on-clear-conversation';
 import { GrAttachment } from 'react-icons/gr';
 import { IoMdCloseCircle } from 'react-icons/io';
+import { toast } from 'react-toastify';
 
 type ChatBoxType = {
   friend: UserType;
@@ -110,9 +111,9 @@ export default function ChatBox({
     setMessage('');
     setPicture(null);
     setImageToDisplay(null);
-    const chatDataTOSend = new FormData();
-    chatDataTOSend.append('message', messageQuery);
-    if (pictureToSend) chatDataTOSend.append('picture', pictureToSend);
+    const chatDataToSend = new FormData();
+    chatDataToSend.append('message', messageQuery);
+    if (pictureToSend) chatDataToSend.append('picture', pictureToSend);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/message/send/${friendId}`, {
@@ -120,7 +121,7 @@ export default function ChatBox({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: chatDataTOSend,
+        body: chatDataToSend,
       });
 
       if (response.status >= 200 && response.status <= 210) {
@@ -143,11 +144,13 @@ export default function ChatBox({
           return updatedConversations;
         });
       } else if (response.status === 403) {
+        toast.error('You need to re-login');
         return navigate('/login');
       } else {
         throw new Error('Something went wrong!');
       }
     } catch (error) {
+      toast.error(error as string);
       console.log(error);
     } finally {
       setTimeout(() => {
@@ -158,7 +161,7 @@ export default function ChatBox({
   };
 
   const clearConversation = async () => {
-    await onClearConversation({ token, userId, friendId, navigate, setLoading, setAllMessages });
+    await onClearConversation({ token, userId, friendId, navigate, setLoading, setIsChatOpen });
   };
 
   return (
@@ -184,7 +187,7 @@ export default function ChatBox({
           onClick={clearConversation}
           hidden={!allMessages.length}
           disabled={!allMessages.length}
-          title='Deletes messages for both participants'
+          title='Delete messages for both participants'
         >
           Clear all
         </button>

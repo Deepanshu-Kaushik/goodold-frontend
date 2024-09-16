@@ -1,6 +1,7 @@
 import { NavigateFunction } from 'react-router-dom';
 import { PostType } from '../types/post-type';
 import { loadingState } from '../constants/loading-state';
+import { toast } from 'react-toastify';
 
 interface CommonFeedType {
   token: string;
@@ -64,11 +65,13 @@ async function onHandleLikeDislike({
         }),
       );
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }
@@ -97,12 +100,15 @@ async function onHandlePostDelete({
 
     if (response.status >= 200 && response.status <= 210) {
       setFeed((feed) => feed.filter((post) => postId !== post.postId));
+      toast.success('Deleted post successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }
@@ -141,12 +147,15 @@ async function onHandlePostEdit({
       );
       setIsEditing(null);
       setDescription('');
+      toast.success('Edited post successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }
@@ -174,13 +183,16 @@ async function onHandleNewComment({ token, userId, navigate, postId, comment, se
           else return post;
         }),
       );
+      toast.success('Added comment successfully');
       return newComment;
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }
@@ -207,12 +219,15 @@ async function onHandleCommentDeleteType({ token, navigate, commentId, setFeed, 
           else return post;
         }),
       );
+      toast.success('Deleted comment successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 }

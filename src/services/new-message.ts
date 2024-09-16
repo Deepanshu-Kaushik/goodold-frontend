@@ -1,5 +1,6 @@
 import { NavigateFunction } from 'react-router-dom';
 import { ConversationType } from '../types/conversation-type';
+import { toast } from 'react-toastify';
 
 type NewMessageType = {
   id: string;
@@ -29,18 +30,21 @@ export default async ({ id, token, sendMessage, setNewMessageBox, navigate, setC
             if (id && convo.participants._id === id) {
               delete convo.messageSeenAt[id];
               if (sendMessage) convo.latestMessage = sendMessage;
-                else convo.latestMessage = 'IMAGE';
+              else convo.latestMessage = 'IMAGE';
             }
             return convo;
           }) || null;
         return updatedConversations;
       });
+      toast.success('Sent message successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 };

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import ErrorComponent from '../ErrorComponent';
 import { useUserIdContext } from '../../contexts/UserIdContext';
 import { LoginFormErrors } from './Login';
+import { toast } from 'react-toastify';
 
 interface RegisterFormErrors extends LoginFormErrors {
   firstName?: string;
@@ -125,120 +126,119 @@ export default function Register() {
         return navigate(`/`);
       } else if (response.status === 400) {
         const newError = await response.json();
-        setFormErrors({
-          email: newError.error,
-        });
-      } else if (response.status === 403) {
-        return navigate('/login');
+        throw newError.error;
       } else {
         throw new Error('Something went wrong!');
       }
     } catch (error) {
+      toast.error(error as string);
       console.error('Error during registration:', error);
     }
     setLoading(false);
   }
 
   return (
-    <div className='flex p-4 justify-center select-none'>
-      <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
-        <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
-        <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit} encType='multipart/form-data'>
-          <div className='flex flex-col items-center gap-2 mb-2'>
-            {image && <img className='w-28 h-28 object-cover rounded-full border-2 dark:border-lord-200' src={image} />}
-            <label
-              htmlFor='picture'
-              className='bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2 dark:bg-blue-950 dark:hover:bg-blue-700 tracking-wider dark:text-gray-300'
-            >
-              Upload profile picture
-            </label>
-          </div>
-          <div className='gap-2 w-full flex flex-col '>
+      <div className='flex p-4 justify-center select-none'>
+        <Card customStyle='w-[80%] md:w-[60%]' className='dark:bg-lord-300'>
+          <h2 className='dark:text-white font-bold'>Welcome to Goodold!</h2>
+          <form className='flex flex-col my-4 gap-2' onSubmit={handleSubmit} encType='multipart/form-data'>
+            <div className='flex flex-col items-center gap-2 mb-2'>
+              {image && (
+                <img className='w-28 h-28 object-cover rounded-full border-2 dark:border-lord-200' src={image} />
+              )}
+              <label
+                htmlFor='picture'
+                className='bg-sky-800 hover:bg-sky-700 text-white rounded-sm cursor-pointer text-center p-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 tracking-wider dark:text-gray-300'
+              >
+                Upload profile picture
+              </label>
+            </div>
+            <div className='gap-2 w-full flex flex-col '>
+              <input
+                type='text'
+                className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+                name='firstName'
+                placeholder='First name'
+                value={formData.firstName}
+                onChange={handleOnChange}
+                autoComplete='off'
+                ref={focusRef}
+              />
+              {formErrors.firstName && <ErrorComponent>{formErrors.firstName}</ErrorComponent>}
+              <input
+                type='text'
+                className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+                name='lastName'
+                placeholder='Last name'
+                value={formData.lastName}
+                autoComplete='off'
+                onChange={handleOnChange}
+              />
+              {formErrors.lastName && <ErrorComponent>{formErrors.lastName}</ErrorComponent>}
+            </div>
             <input
               type='text'
-              className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-              name='firstName'
-              placeholder='First name'
-              value={formData.firstName}
-              onChange={handleOnChange}
+              placeholder='Location'
+              name='location'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.location}
               autoComplete='off'
-              ref={focusRef}
+              onChange={handleOnChange}
             />
-            {formErrors.firstName && <ErrorComponent>{formErrors.firstName}</ErrorComponent>}
+            {formErrors.location && <ErrorComponent>{formErrors.location}</ErrorComponent>}
             <input
               type='text'
-              className='outline-sky-400 p-2 flex-1 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-              name='lastName'
-              placeholder='Last name'
-              value={formData.lastName}
+              placeholder='Occupation'
+              name='occupation'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.occupation}
               autoComplete='off'
               onChange={handleOnChange}
             />
-            {formErrors.lastName && <ErrorComponent>{formErrors.lastName}</ErrorComponent>}
-          </div>
-          <input
-            type='text'
-            placeholder='Location'
-            name='location'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.location}
-            autoComplete='off'
-            onChange={handleOnChange}
-          />
-          {formErrors.location && <ErrorComponent>{formErrors.location}</ErrorComponent>}
-          <input
-            type='text'
-            placeholder='Occupation'
-            name='occupation'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.occupation}
-            autoComplete='off'
-            onChange={handleOnChange}
-          />
-          {formErrors.occupation && <ErrorComponent>{formErrors.occupation}</ErrorComponent>}
-          <input
-            type='file'
-            name='picture'
-            id='picture'
-            accept='image/jpeg, image/png, image/jpg'
-            onChange={handleOnChange}
-            hidden
-          />
-          <input
-            type='text'
-            placeholder='Email'
-            name='email'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.email}
-            autoComplete='off'
-            onChange={handleOnChange}
-          />
-          {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
-          <input
-            type='password'
-            placeholder='Password'
-            name='password'
-            className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
-            value={formData.password}
-            autoComplete='off'
-            onChange={handleOnChange}
-          />
-          {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
-          {loading ? (
-            <LoadingOutlined className='text-5xl text-sky-600' />
-          ) : (
-            <button
-              type='submit'
-              className='text-sky-50 tracking-widest font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-950 dark:hover:bg-blue-700 dark:text-gray-300'
-            >
-              Register
-            </button>
-          )}
-        </form>
-        <Link to='/login' className='font-bold text-sky-800 hover:text-sky-600 underline'>
-          Already have an account? Sign In here.
-        </Link>
-      </Card>
-    </div>
+            {formErrors.occupation && <ErrorComponent>{formErrors.occupation}</ErrorComponent>}
+            <input
+              type='file'
+              name='picture'
+              id='picture'
+              accept='image/jpeg, image/png, image/jpg'
+              onChange={handleOnChange}
+              hidden
+            />
+            <input
+              type='text'
+              placeholder='Email'
+              name='email'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.email}
+              autoComplete='off'
+              onChange={handleOnChange}
+            />
+            {formErrors.email && <ErrorComponent>{formErrors.email}</ErrorComponent>}
+            <input
+              type='password'
+              placeholder='Password'
+              name='password'
+              className='outline-sky-400 p-2 border-2 dark:outline-dark-600 dark:bg-dark-600 dark:placeholder:text-white dark:border-lord-200 dark:text-white'
+              value={formData.password}
+              autoComplete='off'
+              onChange={handleOnChange}
+            />
+            {formErrors.password && <ErrorComponent>{formErrors.password}</ErrorComponent>}
+            {loading ? (
+              <LoadingOutlined className='text-5xl text-sky-600' />
+            ) : (
+              <button
+                type='submit'
+                className='text-sky-50 tracking-widest font-bold text-lg bg-sky-800 hover:bg-sky-700 px-4 pt-2 pb-1.5 rounded-sm text-center self-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-300'
+              >
+                Register
+              </button>
+            )}
+          </form>
+          <Link to='/login' className='font-bold text-sky-800 hover:text-sky-600 underline'>
+            Already have an account? Sign In here.
+          </Link>
+        </Card>
+      </div>
   );
 }

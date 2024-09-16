@@ -12,6 +12,7 @@ import onRemoveNotification from '../../services/on-remove-notification';
 import { RiMessage2Fill } from 'react-icons/ri';
 import { FaUserAltSlash } from 'react-icons/fa';
 import { LuCheckCircle } from 'react-icons/lu';
+import { toast } from 'react-toastify';
 
 type UserInfoType = {
   userData: UserType;
@@ -111,36 +112,40 @@ export default function UserInfo({ userData, setFriendList, numberOfFriends }: U
                 <UserDeleteOutlined
                   className='cursor-pointer mx-2 text-white bg-sky-800 hover:bg-red-600 p-3 rounded-full dark:bg-cyan-900 dark:hover:bg-red-900'
                   title='Unfriend'
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    handleAddRemoveFriend(profileId);
+                    await handleAddRemoveFriend(profileId);
+                    toast.success('Removed friend successfully');
                   }}
                 />
               ) : profileId && pendingRequests.includes(profileId) ? (
                 <FaUserAltSlash
                   className='cursor-pointer mx-2 text-white text-2xl bg-red-600 hover:bg-red-800 size-10 p-2 rounded-full'
                   title='Cancel request'
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    removeNotification(profileId);
+                    await removeNotification(profileId);
+                    toast.success('Cancelled friend request');
                   }}
                 />
               ) : profileId && unAcceptedRequests.includes(profileId) ? (
                 <LuCheckCircle
                   className='cursor-pointer mx-2 p-1 text-green-600 hover:text-green-400 size-10 rounded-full'
                   title='Accept request'
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    handleAddRemoveFriend(profileId);
+                    await handleAddRemoveFriend(profileId);
+                    toast.success('Accepted friend request');
                   }}
                 />
               ) : (
                 <UserAddOutlined
                   className='cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full dark:bg-cyan-900 dark:hover:bg-cyan-600'
                   title='Add friend'
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    handleSendFriendRequestNotification(profileId);
+                    await handleSendFriendRequestNotification(profileId);
+                    toast.success('Sent friend request successfully');
                   }}
                 />
               ))

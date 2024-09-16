@@ -1,5 +1,6 @@
 import { NavigateFunction } from 'react-router-dom';
-import { MessageType } from '../types/message-type';
+import { ConversationType } from '../types/conversation-type';
+import { toast } from 'react-toastify';
 
 type OnClearConversationType = {
   token: string;
@@ -7,16 +8,16 @@ type OnClearConversationType = {
   friendId: string | undefined;
   navigate: NavigateFunction;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setAllMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<ConversationType | null>>;
 };
 
-export default async function onClearConversationT({
+export default async function onClearConversation({
   token,
   userId,
   friendId,
   navigate,
   setLoading,
-  setAllMessages,
+  setIsChatOpen,
 }: OnClearConversationType) {
   setLoading(true);
   try {
@@ -34,14 +35,16 @@ export default async function onClearConversationT({
       }),
     });
     if (response.status >= 200 && response.status <= 210) {
-      setAllMessages([]);
-      window.location.reload();
+      setIsChatOpen(null);
+      toast.success('Cleared the conversation successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   } finally {
     setLoading(false);

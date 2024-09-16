@@ -9,6 +9,7 @@ import { useUserIdContext } from '../../contexts/UserIdContext';
 import { UserType } from '../../types/user-type';
 import { PostType } from '../../types/post-type';
 import { useFriendListContext } from '../../contexts/FriendListContext';
+import { toast } from 'react-toastify';
 
 const fetchData = async (
   url: string,
@@ -31,13 +32,18 @@ const fetchData = async (
       const data = await response.json();
       setter(data);
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       localStorage.clear();
       setUserId(null);
       return navigate('/login');
+    } else if (response.status === 404) {
+      const { error } = await response.json();
+      throw error;
     } else {
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 };

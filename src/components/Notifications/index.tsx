@@ -9,6 +9,7 @@ import onClearAllNotifications from '../../services/on-clear-all-notifications';
 import DeleteNotificationPopup from './DeleteNotificationPopup';
 import onDeleteNotification from '../../services/on-delete-notification';
 import { useNotificationsContext } from '../../contexts/NotificationContext';
+import { toast } from 'react-toastify';
 
 export default function Notifications() {
   const { token, userId } = localStorage;
@@ -94,6 +95,7 @@ export default function Notifications() {
                         onClick={(e) => {
                           e.preventDefault();
                           handleAcceptFriendRequest(notification.createrId);
+                          toast.success('Accepted friend request');
                         }}
                       >
                         Accept
@@ -103,6 +105,7 @@ export default function Notifications() {
                         onClick={(e) => {
                           e.preventDefault();
                           handleDeclineFriendRequest(notification._id);
+                          toast.success('Declined friend request');
                         }}
                       >
                         Decline

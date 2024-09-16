@@ -9,6 +9,7 @@ import { useThemeContext } from '../../contexts/ThemeContext';
 import { IoNotifications } from 'react-icons/io5';
 import { RiMessage2Fill } from 'react-icons/ri';
 import { FaPowerOff } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 export default function Navbar() {
   const location = useLocation();
@@ -97,6 +98,7 @@ export default function Navbar() {
               localStorage.clear();
               setUserId(null);
               navigate('/login');
+              toast.success('Logged out successfully');
             }}
           />
         )}

@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  LoadingOutlined,
-  UserAddOutlined,
-  UserDeleteOutlined,
-} from '@ant-design/icons';
+import { LoadingOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
 import { UserType } from '../../types/user-type';
 import onAddRemoveFriend from '../../services/on-add-remove-friend';
 import { useFriendListContext } from '../../contexts/FriendListContext';
@@ -12,6 +8,7 @@ import onSendFriendRequestNotification from '../../services/on-send-friend-reque
 import onRemoveNotification from '../../services/on-remove-notification';
 import { FaUserAltSlash } from 'react-icons/fa';
 import { LuCheckCircle } from 'react-icons/lu';
+import { toast } from 'react-toastify';
 
 type FriendType = {
   setFriendList: React.Dispatch<React.SetStateAction<UserType[]>>;
@@ -93,27 +90,30 @@ export default function Friend({ setFriendList, data, isOnline }: FriendType) {
               className='cursor-pointer mx-2 text-white bg-sky-800 hover:bg-red-600 p-3 rounded-full dark:bg-cyan-900 dark:hover:bg-red-900'
               title='Unfriend'
               hidden={userId === data?.userId}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                handleAddRemoveFriend(data?.userId);
+                await handleAddRemoveFriend(data?.userId);
+                toast.success('Removed friend successfully');
               }}
             />
           ) : data.userId && pendingRequests.includes(data.userId) ? (
             <FaUserAltSlash
               className='cursor-pointer mx-2 text-white text-2xl bg-red-600 hover:bg-red-800 size-10 p-2 rounded-full'
               title='Cancel request'
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                removeNotification(data.userId);
+                await removeNotification(data.userId);
+                toast.success('Cancelled friend request');
               }}
             />
           ) : data.userId && unAcceptedRequests.includes(data.userId) ? (
             <LuCheckCircle
               className='cursor-pointer mx-2 p-1 text-green-600 hover:text-green-400 size-10 rounded-full'
               title='Accept request'
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                handleAddRemoveFriend(data.userId);
+                await handleAddRemoveFriend(data.userId);
+                toast.success('Accepted friend request');
               }}
             />
           ) : (
@@ -121,9 +121,10 @@ export default function Friend({ setFriendList, data, isOnline }: FriendType) {
               className='cursor-pointer mx-2 text-white bg-sky-800 hover:bg-sky-600 p-3 rounded-full dark:bg-cyan-900 dark:hover:bg-cyan-600'
               title='Add friend'
               hidden={userId === data?.userId}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                handleSendFriendRequestNotification(data.userId);
+                await handleSendFriendRequestNotification(data.userId);
+                toast.success('Sent friend request successfully');
               }}
             />
           )}

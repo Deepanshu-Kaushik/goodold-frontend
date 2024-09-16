@@ -1,6 +1,7 @@
 import { NavigateFunction } from 'react-router-dom';
 import NewPostType from '../types/new-post-type';
 import { PostType } from '../types/post-type';
+import { toast } from 'react-toastify';
 
 type OnHandleNewPosts = {
   navigate: NavigateFunction;
@@ -40,7 +41,9 @@ export default async ({ navigate, newPost, setFeed, setNewPost, pictureRef, setI
       setNewPost({ description: '', picture: null });
       if (pictureRef.current) pictureRef.current.value = '';
       setImage(null);
+      toast.success('Created a post successfully');
     } else if (response.status === 403) {
+      toast.error('You need to re-login');
       return navigate('/login');
     } else if (response.status === 404) {
       const { error } = await response.json();
@@ -49,6 +52,7 @@ export default async ({ navigate, newPost, setFeed, setNewPost, pictureRef, setI
       throw new Error('Something went wrong!');
     }
   } catch (error) {
+    toast.error(error as string);
     console.log(error);
   }
 };
